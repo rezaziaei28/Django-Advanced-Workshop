@@ -1,0 +1,14 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: backend
+    volumes:
+      - ./core:/app
+    ports:
+      - "8000:8000"
+    command: python3 manage.py runserver 0.0.0.0:8000
+    environment:
+      - SECRET_KEY=test
+      - DEBUG=True
