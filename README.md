@@ -63,46 +63,39 @@ Visit http://127.0.0.1:8000/
 
 ## Project Structure
 
-├── core
-│   ├── accounts
-│   │   ├── admin.py
-│   │   ├── apps.py
-│   │   ├── __init__.py
-│   │   ├── migrations
-│   │   │   ├── 0001_initial.py
-│   │   │   ├── 0002_remove_user_published_date_profile.py
-│   │   │   └── __init__.py
-│   │   ├── models.py
-│   │   ├── tests.py
-│   │   └── views.py
-│   ├── blog
-│   │   ├── admin.py
-│   │   ├── apps.py
-│   │   ├── __init__.py
-│   │   ├── migrations
-│   │   │   ├── 0001_initial.py
-│   │   │   └── __init__.py
-│   │   ├── models.py
-│   │   ├── tests.py
-│   │   ├── urls.py
-│   │   └── views.py
-│   ├── core
-│   │   ├── asgi.py
-│   │   ├── __init__.py
-│   │   ├── __pycache__
-│   │   │   ├── __init__.cpython-310.pyc
-│   │   │   └── settings.cpython-310.pyc
-│   │   ├── settings.py
-│   │   ├── urls.py
-│   │   └── wsgi.py
-│   ├── db.sqlite3
-│   ├── manage.py
-│   ├── staticfile
-│   └── templates
-├── docker-compose.yml
-├── dockerfile
-├── requirements.txt
-└── venv
+```
+core/
+├── accounts/
+│   ├── admin.py
+│   ├── apps.py
+│   ├── migrations/
+│   │   ├── 0001_initial.py
+│   │   ├── 0002_remove_user_published_date_profile.py
+│   │   └── __init__.py
+│   ├── models.py
+│   ├── tests.py
+│   └── views.py
+├── blog/
+│   ├── admin.py
+│   ├── apps.py
+│   ├── migrations/
+│   │   ├── 0001_initial.py
+│   │   └── __init__.py
+│   ├── models.py
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+├── core/
+│   ├── asgi.py
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── db.sqlite3
+├── manage.py
+├── staticfile/
+└── templates/
+```
 
 ---
 
