@@ -35,14 +35,14 @@ def redirect_to_google(request):
 """
 
 
-class redirect_to_google(RedirectView):
+class RedirectToJadiDotNet(RedirectView):
     '''
     Redirect view simple for google
     '''
     
-    url = 'https://google.com'
+    url = 'https://jadi.net/'
 
     def get_redirect_url(self, *args, **kwargs):
-        post = get_object_or_404(Post, pk=kwargs['pid'])
+        post = get_object_or_404(Post, pk=kwargs['pk'])
         return super().get_redirect_url(*args, **kwargs)
     
