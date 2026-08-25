@@ -1,7 +1,7 @@
 # Use official Python runtime image
 # Using docker.arvancloud.ir because Docker Hub is not available in Iran
 # You can replace with: FROM python:3.13
-FROM docker.arvancloud.ir/python:3.11-slim
+FROM python:3.13
 
 # Set the working directory inside the container
 WORKDIR /app
