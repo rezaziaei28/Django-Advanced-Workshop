@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic.base import TemplateView, RedirectView
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, FormView
 from blog.models import Post
+from blog.forms import PostForm
 # Create your views here.
 
 # a function view for show a templates
@@ -64,6 +65,7 @@ class PostListView(ListView):
         return posts
 
 class PostDetailView(DetailView):
+
     '''
     This class show a post on page
     '''
@@ -71,3 +73,13 @@ class PostDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs)
+
+class PostCreateView(FormView):
+    template_name = "contact.html"
+    form_class = PostForm
+    success_url = "/blog/post/"
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+    
