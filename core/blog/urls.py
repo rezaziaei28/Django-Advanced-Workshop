@@ -6,5 +6,7 @@ app_name = 'blog'
 
 urlpatterns = [
     path("", IndexView.as_view(),name='index'),
-    path("go_to_jadi_dot_net/<int:pk>", RedirectToJadiDotNet.as_view(), name="go_to_jadi_dot_net")
+    path("go_to_jadi_dot_net/<int:pk>", RedirectToJadiDotNet.as_view(), name="go_to_jadi_dot_net"),
+    path("post/", PostListView.as_view(), name="post-list"),
+    path("post/<int:pk>/", PostDetailView.as_view(), name='post-detail')
 ]
