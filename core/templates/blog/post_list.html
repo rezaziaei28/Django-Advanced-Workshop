@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Document</title>
+</head>
+<body>
+      <h1>blog posts</h1>
+      {% for post in posts %}
+      <dev>
+            <li>
+                  <ul>
+                        <a href="{% url 'blog:post-detail' pk=post.id %}">
+                        <h3>{{ post.title }}</h3>
+                        </a>
+                        <li>
+                              <ul><p>{{ post.content }}</p></ul>
+                        </li>
+                        
+                  </ul>
+            </li>
+      </dev>
+      {% endfor %}
+
+      {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                  <li class="current"><span>{{ num }}</span></li>
+            {% else %}
+                  <li><a href="?page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_previous %}
+            <li><a href="?page={{ page_obj.previous_page_number }}">last</a></li>
+      {% endif %}
+
+      {% if page_obj.has_next %}
+            <li><a href="?page={{ page_obj.next_page_number }}">next</a></li>
+      {% endif %}
+
+</body>
+</html>
