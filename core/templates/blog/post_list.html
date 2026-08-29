@@ -14,6 +14,12 @@
                         <a href="{% url 'blog:post-detail' pk=post.id %}">
                         <h3>{{ post.title }}</h3>
                         </a>
+                        <a href="{% url 'blog:post-edit' pk=post.id %}">
+                              <h4>edit</h4>
+                        </a>
+                        <a href="{% url 'blog:post-delete' pk=post.id %}">
+                              <h4>delete</h4>
+                        </a>
                         <li>
                               <ul><p>{{ post.content }}</p></ul>
                               <ul><p>{{ post.published_date }}</p></ul>
