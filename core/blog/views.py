@@ -1,8 +1,10 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic.base import TemplateView, RedirectView
 from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from blog.models import Post
 from blog.forms import PostForm
+
 # Create your views here.
 
 # a function view for show a templates
@@ -49,7 +51,7 @@ class RedirectToJadiDotNet(RedirectView):
         return super().get_redirect_url(*args, **kwargs)
 
 
-class PostListView(ListView):
+class PostListView(LoginRequiredMixin, ListView):
     '''
     This class show all post on page
     '''
@@ -64,7 +66,7 @@ class PostListView(ListView):
         posts = Post.objects.filter(status=1)
         return posts
 
-class PostDetailView(DetailView):
+class PostDetailView(LoginRequiredMixin, DetailView):
 
     '''
     This class show a post on page
@@ -89,7 +91,7 @@ class PostCreateView(FormView):
 """
 
 
-class PostCreateView(CreateView):
+class PostCreateView(LoginRequiredMixin, CreateView):
     '''
     This class is create a new post with (CreateView) 
     '''
@@ -104,7 +106,7 @@ class PostCreateView(CreateView):
         return super().form_valid(form)
     
 
-class PostEditView(UpdateView):
+class PostEditView(LoginRequiredMixin, UpdateView):
     '''
     This class is for edit a post 
     '''    
@@ -113,7 +115,7 @@ class PostEditView(UpdateView):
     form_class = PostForm
     success_url = '/blog/post/'
     
-class PostDeleteView(DeleteView):
+class PostDeleteView(LoginRequiredMixin, DeleteView):
     '''
     This class is for delete post 
     '''
