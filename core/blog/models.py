@@ -10,10 +10,10 @@ class Post(models.Model):
     '''
     This is a class to define posts for blog app
     '''
+    author = models.ForeignKey("accounts.Profile", on_delete=models.SET_NULL, null=True)
     image = models.ImageField(null=True,blank=True)
     title = models.CharField(max_length=255)
     content = models.TextField()
-    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     category = models.ForeignKey('Category',on_delete=models.SET_NULL, null=True)
     status = models.BooleanField(default=False)
     
