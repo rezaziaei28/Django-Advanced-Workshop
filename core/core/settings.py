@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "accounts.apps.AccountsConfig",
     "blog.apps.BlogConfig",
+
+    # Django REST Framework
+    "rest_framework", 
 ]
 
 MIDDLEWARE = [
