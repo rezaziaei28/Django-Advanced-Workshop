@@ -2,6 +2,12 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic.base import TemplateView, RedirectView
 from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse
+
+# import rest_framework
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 from blog.models import Post
 from blog.forms import PostForm
 
@@ -123,3 +129,6 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
     model = Post
     success_url = '/blog/post/'
 
+@api_view()
+def api_post_list(request):
+    return Response({'name': 'ali', 'age': 19})
