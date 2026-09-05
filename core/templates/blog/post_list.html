@@ -14,6 +14,7 @@
                         <a href="{% url 'blog:post-detail' pk=post.id %}">
                         <h3>{{ post.title }}</h3>
                         </a>
+                        <h3>{{ post.id }}</h3>
                         <a href="{% url 'blog:post-edit' pk=post.id %}">
                               <h4>edit</h4>
                         </a>
