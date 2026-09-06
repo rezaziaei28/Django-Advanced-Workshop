@@ -7,15 +7,20 @@ from django.shortcuts import get_object_or_404
 
 # Create your views here.
 
-@api_view()
+@api_view(['GET','POST'])
 def post_list(request):
       '''
       Retrieve and return a single blog post by its ID.
       '''
-
-      post = Post.objects.filter(status=True)
-      serializer = PostSerializers(post,many=True)
-      return Response(serializer.data)
+      if request.method == "GET":
+            post = Post.objects.filter(status=True)
+            serializer = PostSerializers(post,many=True)
+            return Response(serializer.data)
+      elif request.method == "POST":
+            serializer = PostSerializers(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
 
 
 @api_view()
