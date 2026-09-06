@@ -9,12 +9,22 @@ from django.shortcuts import get_object_or_404
 
 @api_view()
 def post_list(request):
-      return Response("ok")
+      '''
+      Retrieve and return a single blog post by its ID.
+      '''
+
+      post = Post.objects.filter(status=True)
+      serializer = PostSerializers(post,many=True)
+      return Response(serializer.data)
 
 
 @api_view()
 def post_detail(request,id):
-      post = get_object_or_404(Post, pk=id)
+      '''
+      This function is for show post ID in page 
+      '''
+
+      post = get_object_or_404(Post, pk=id, status=True)
       post = Post.objects.get(pk=id)
       serializer = PostSerializers(post)
       return Response(serializer.data)
