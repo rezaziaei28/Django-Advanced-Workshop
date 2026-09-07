@@ -23,7 +23,7 @@ def post_list(request):
             return Response(serializer.data)
 
 
-@api_view(["GET", "PUT"])
+@api_view(["GET", "PUT", "DELETE"])
 def post_detail(request,id):
       '''
       This function is for show post ID in page 
@@ -38,6 +38,9 @@ def post_detail(request,id):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+      elif request.method == "DELETE":
+            post.delete()
+            return Response({"detail":"item removed successfully"}, status=status.HTTP_204_NO_CONTENT)
 
       # try:
       #       post = Post.objects.get(pk=id)
