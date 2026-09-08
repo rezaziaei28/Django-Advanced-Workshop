@@ -1,20 +1,24 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated ,IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from .serializers import PostSerializers
 from ...models import Post
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
 
 # Create your views here.
 
-@api_view(['GET','POST'])
+"""@api_view(['GET','POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def post_list(request):
       '''
-      Retrieve and return a single blog post by its ID.
+      Getting a list of posts and creating a new post
       '''
+
       if request.method == "GET":
+            '''Retrveing a list of post'''
+
             post = Post.objects.filter(status=True)
             serializer = PostSerializers(post,many=True)
             return Response(serializer.data)
@@ -23,6 +27,38 @@ def post_list(request):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+"""
+
+class PostList(APIView):
+      '''
+      Getting a list of posts and creating a new post
+      '''
+
+      permission_classes = [IsAuthenticatedOrReadOnly]  # This code about login user in site
+      serializer_class = PostSerializers 
+
+      def get(self, request):
+            '''Retrveing a list of post'''
+            post = Post.objects.filter(status=True)
+            serializer = PostSerializers(post, many=True)
+            return Response(serializer.data)
+
+      def post(self, request):
+            '''Creating a post with provided data'''
+            serializer = PostSerializers(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+      
+      
+
+
+
+
+
+
+
+
 
 
 @api_view(["GET", "PUT", "DELETE"])
