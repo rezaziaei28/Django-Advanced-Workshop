@@ -26,7 +26,7 @@ def post_list(request):
 
 
 @api_view(["GET", "PUT", "DELETE"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def post_detail(request,id):
       '''
       This function is for show post ID in page 
