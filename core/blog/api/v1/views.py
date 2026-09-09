@@ -29,38 +29,7 @@ def post_list(request):
             return Response(serializer.data)
 """
 
-class PostList(APIView):
-      '''
-      Getting a list of posts and creating a new post
-      '''
-
-      permission_classes = [IsAuthenticatedOrReadOnly]  # This code about login user in site
-      serializer_class = PostSerializers 
-
-      def get(self, request):
-            '''Retrveing a list of post'''
-            post = Post.objects.filter(status=True)
-            serializer = PostSerializers(post, many=True)
-            return Response(serializer.data)
-
-      def post(self, request):
-            '''Creating a post with provided data'''
-            serializer = PostSerializers(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data)
-      
-      
-
-
-
-
-
-
-
-
-
-
+""" Function base views for update and delede post
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def post_detail(request,id):
@@ -87,5 +56,56 @@ def post_detail(request,id):
       #       return Response(serializer.data)
       # except Post.DoesNotExist:
       #       return Response({"detail":"Post is not exist"}, status=status.HTTP_404_NOT_FOUND)
-            
-  
+"""    
+
+class PostList(APIView):
+      '''
+      Getting a list of posts and creating a new post
+      '''
+
+      permission_classes = [IsAuthenticatedOrReadOnly]  # This code about login user in site
+      serializer_class = PostSerializers # This code is for esay access for change postt
+
+      def get(self, request):
+            '''Retrveing a list of post'''
+            post = Post.objects.filter(status=True)
+            serializer = PostSerializers(post, many=True)
+            return Response(serializer.data)
+
+      def post(self, request):
+            '''Creating a post with provided data'''
+            serializer = PostSerializers(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+      
+
+class PostDetail(APIView):
+      '''
+      This class for getting detail of the post and edite and removing it
+      '''
+
+      permission_classes = [IsAuthenticatedOrReadOnly]  # This code is about login user in site
+      serializer_class = PostSerializers # This code is for esay access for change postt
+
+
+      def get(self, request,id):
+            '''Retrveing the post data'''
+            post = get_object_or_404(Post, pk=id,status=True)
+            serializer = self.serializer_class(post)
+            return Response(serializer.data)
+
+      def put(self,request,id):
+            '''editing the post data'''
+            post = get_object_or_404(Post, pk=id,status=True)
+            serializer = self.serializer_class(post, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+
+      def delete(self, request,id):
+            '''Deleting the post object'''
+            post = get_object_or_404(Post, pk=id, status=True)
+            post.delete()
+            return Response({"detail":"item removed successfully"}, status=status.HTTP_204_NO_CONTENT)
+      
