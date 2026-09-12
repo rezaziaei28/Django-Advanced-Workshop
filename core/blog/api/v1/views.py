@@ -6,10 +6,12 @@ from ...models import Post
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
+from rest_framework.generics import ListCreateAPIView
 
 # Create your views here.
 
-"""@api_view(['GET','POST'])
+""" This is function base view for show post and create ....
+@api_view(['GET','POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def post_list(request):
       '''
@@ -27,9 +29,9 @@ def post_list(request):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
-"""
 
-""" Function base views for update and delede post
+
+# Function base views for update and delede post
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def post_detail(request,id):
@@ -58,6 +60,7 @@ def post_detail(request,id):
       #       return Response({"detail":"Post is not exist"}, status=status.HTTP_404_NOT_FOUND)
 """    
 
+""" This is class base that use APIView
 class PostList(APIView):
       '''
       Getting a list of posts and creating a new post
@@ -78,7 +81,16 @@ class PostList(APIView):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
-      
+"""   
+
+class PostList(ListCreateAPIView):
+      '''
+      Getting a list of posts and creating a new post
+      '''
+      queryset = Post.objects.filter(status=True)
+      permission_classes = [IsAuthenticatedOrReadOnly]  # This code about login user in site
+      serializer_class = PostSerializers # This code is for esay access for change postt
+
 
 class PostDetail(APIView):
       '''
