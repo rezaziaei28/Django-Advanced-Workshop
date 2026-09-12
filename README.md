@@ -4,7 +4,7 @@ This repository is my hands-on learning project for exploring more advanced Djan
 
 After learning the basics of Django, I wanted a separate place where I could practice new concepts step by step instead of adding everything to my first Django project.
 
-I usually follow tutorials or other learning resources, then implement what I learn in this repository. The project continues to grow as I learn new Django concepts.
+I follow tutorials to learn new concepts, then adapt and implement them in this project in my own way. The project continues to grow as I learn new Django concepts.
 
 This is not intended to be a finished product. It is a learning workspace where I experiment, practice, make mistakes, and gradually build a better understanding of Django.
 
@@ -204,7 +204,7 @@ docker-compose exec web python manage.py createsuperuser
 ### Then open 
 http://localhost:8000
 
-### Whiteout Docker 
+### Witheout Docker 
 
 ```bash
 git clone https://github.com/rezaziaei28/Django-Advanced-Workshop.git
