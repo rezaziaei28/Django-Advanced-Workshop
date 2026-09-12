@@ -6,7 +6,7 @@ from ...models import Post
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
 
 # Create your views here.
 
@@ -81,17 +81,8 @@ class PostList(APIView):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
-"""   
 
-class PostList(ListCreateAPIView):
-      '''
-      Getting a list of posts and creating a new post
-      '''
-      queryset = Post.objects.filter(status=True)
-      permission_classes = [IsAuthenticatedOrReadOnly]  # This code about login user in site
-      serializer_class = PostSerializers # This code is for esay access for change postt
-
-
+            
 class PostDetail(APIView):
       '''
       This class for getting detail of the post and edite and removing it
@@ -120,4 +111,26 @@ class PostDetail(APIView):
             post = get_object_or_404(Post, pk=id, status=True)
             post.delete()
             return Response({"detail":"item removed successfully"}, status=status.HTTP_204_NO_CONTENT)
-      
+                        
+"""   
+
+class PostList(ListCreateAPIView):
+      '''
+      Getting a list of posts and creating a new post
+      '''
+      queryset = Post.objects.filter(status=True)
+      permission_classes = [IsAuthenticatedOrReadOnly]  # This code about login user in site
+      serializer_class = PostSerializers # This code is for esay access for change postt
+    
+class PostDetail(RetrieveUpdateDestroyAPIView):
+      '''
+      This class for getting detail of the post and edite and removing it
+      '''
+      queryset = Post.objects.filter(status=True)
+
+      # Use lookup_field = 'id' if the URL is post/<int:id>/
+      # If the URL is post/<int:pk>/, no need to set it (pk is the default)
+      lookup_field = 'id'  
+
+      permission_classes = [IsAuthenticatedOrReadOnly]  # This code about login user in site
+      serializer_class = PostSerializers # This code is for esay access for change postt
