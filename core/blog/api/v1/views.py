@@ -7,6 +7,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
+from rest_framework import viewsets
 
 # Create your views here.
 
@@ -134,3 +135,46 @@ class PostDetail(RetrieveUpdateDestroyAPIView):
 
       permission_classes = [IsAuthenticatedOrReadOnly]  # This code about login user in site
       serializer_class = PostSerializers # This code is for esay access for change postt
+
+
+# Example for viewset in Class base view
+class PostViewSet(viewsets.ViewSet):
+      queryset = Post.objects.filter(status=True)
+      permission_classes = [IsAuthenticatedOrReadOnly]  
+      serializer_class = PostSerializers 
+
+      def list(self, request):
+            '''list of posts'''
+            serializer = self.serializer_class(self.queryset, many=True)
+            return Response(serializer.data)
+
+      def retrieve(self, request, id=None):
+            '''retrieve post'''
+            post_object = get_object_or_404(self.queryset, pk=id)
+            serializer = self.serializer_class(post_object)
+            return Response(serializer.data)
+
+      def create(self,request):
+            '''create post'''
+            serializer = self.serializer_class(data=request.data) 
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+
+      def update(self,request,id):
+            '''update post'''
+            post = get_object_or_404(Post, pk=id, status=True)
+            serializer = self.serializer_class(post, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+
+      def partial_update():
+            pass
+
+      def destroy(self,request,id):
+            '''Deleting the post object'''
+            post = get_object_or_404(Post, pk=id, status=True)
+            post.delete()
+            return Response({"detail":"item removed successfully"}, status=status.HTTP_204_NO_CONTENT)
+      
