@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
 from rest_framework import viewsets
+from rest_framework.decorators import action
 
 # Create your views here.
 
@@ -185,6 +186,10 @@ class PostModelViewSet(viewsets.ModelViewSet):
       queryset = Post.objects.filter(status=True)
       permission_classes = [IsAuthenticatedOrReadOnly]  
       serializer_class = PostSerializers 
+
+      @action(methods=['get'],detail=False)
+      def get_is_ok(self,request):
+            return Response({'detail':'Is ok'})
 
 class CategoryModelViewSet(viewsets.ModelViewSet):
       permission_classes = [IsAuthenticatedOrReadOnly]  
