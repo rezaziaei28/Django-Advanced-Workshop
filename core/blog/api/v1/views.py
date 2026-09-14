@@ -1,8 +1,8 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated ,IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from .serializers import PostSerializers
-from ...models import Post
+from .serializers import PostSerializers, CategorySerializers
+from ...models import Post, Category 
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
@@ -115,6 +115,7 @@ class PostDetail(APIView):
                         
 """   
 
+"""# This is class base view that use generics (ListCreateAPIView,RetrieveUpdateDestroyAPIView)
 class PostList(ListCreateAPIView):
       '''
       Getting a list of posts and creating a new post
@@ -135,9 +136,10 @@ class PostDetail(RetrieveUpdateDestroyAPIView):
 
       permission_classes = [IsAuthenticatedOrReadOnly]  # This code about login user in site
       serializer_class = PostSerializers # This code is for esay access for change postt
+"""
 
 
-# Example for viewset in Class base view
+"""# Example for viewset in Class base view
 class PostViewSet(viewsets.ViewSet):
       queryset = Post.objects.filter(status=True)
       permission_classes = [IsAuthenticatedOrReadOnly]  
@@ -177,4 +179,14 @@ class PostViewSet(viewsets.ViewSet):
             post = get_object_or_404(Post, pk=id, status=True)
             post.delete()
             return Response({"detail":"item removed successfully"}, status=status.HTTP_204_NO_CONTENT)
-      
+"""   
+
+class PostModelViewSet(viewsets.ModelViewSet):
+      queryset = Post.objects.filter(status=True)
+      permission_classes = [IsAuthenticatedOrReadOnly]  
+      serializer_class = PostSerializers 
+
+class CategoryModelViewSet(viewsets.ModelViewSet):
+      permission_classes = [IsAuthenticatedOrReadOnly]  
+      serializer_class = CategorySerializers 
+      queryset = Category.objects.all()
