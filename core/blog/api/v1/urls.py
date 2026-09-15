@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from .views import PostModelViewSet, CategoryModelViewSet
 
-app_name = 'api-v1'
+app_name = 'api_v1'
 
 router = DefaultRouter()
 # This roter is about post
