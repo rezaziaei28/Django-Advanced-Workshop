@@ -18,12 +18,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework.schemas import get_schema_view 
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("blog/", include('blog.urls')),
     path("accounts/", include("django.contrib.auth.urls")),
-    path("api-auth/", include("rest_framework.urls"))
+    path("api-auth/", include("rest_framework.urls")),
+    path("api-docs", get_schema_view(title="api simple"))
 ]
 
 # serving static and media for development
