@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from .permissions import IsOwnerOrReadOnly
 
 # Create your views here.
 
@@ -184,7 +185,7 @@ class PostViewSet(viewsets.ViewSet):
 
 class PostModelViewSet(viewsets.ModelViewSet):
       queryset = Post.objects.filter(status=True)
-      permission_classes = [IsAuthenticatedOrReadOnly]  
+      permission_classes = [IsAuthenticatedOrReadOnly,IsOwnerOrReadOnly]  
       serializer_class = PostSerializers 
 
       @action(methods=['get'],detail=False)
