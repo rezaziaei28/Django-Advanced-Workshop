@@ -12,6 +12,7 @@ from rest_framework.decorators import action
 from .permissions import IsOwnerOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from .pagination import DefultPagination
 # Create your views here.
 
 """ This is function base view for show post and create ....
@@ -197,6 +198,10 @@ class PostModelViewSet(viewsets.ModelViewSet):
       # else does not show post
       search_fields = ['title', 'content']
       ordering_fields = ['published_date']
+
+      # this for pagination post
+      pagination_class = DefultPagination
+
 
 
       @action(methods=['get'],detail=False)
