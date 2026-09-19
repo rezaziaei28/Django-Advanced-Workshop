@@ -11,7 +11,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from .permissions import IsOwnerOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
-
+from rest_framework.filters import SearchFilter
 # Create your views here.
 
 """ This is function base view for show post and create ....
@@ -190,8 +190,13 @@ class PostModelViewSet(viewsets.ModelViewSet):
       serializer_class = PostSerializers 
 
       # filter backend
-      filter_backends = [DjangoFilterBackend]
-      filterset_fields = ['category', 'author', 'title', 'status']
+      filter_backends = [DjangoFilterBackend, SearchFilter]
+      filterset_fields = ['category', 'author', 'status']
+      # we can use regexes for it for example
+      # serch_fields = ['=title']  we must serch precise title for show post
+      # else does not show post
+      search_fields = ['title', 'content']
+
 
       @action(methods=['get'],detail=False)
       def get_is_ok(self,request):
