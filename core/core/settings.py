@@ -36,11 +36,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    # Django apps
     "accounts.apps.AccountsConfig",
     "blog.apps.BlogConfig",
 
     # Django REST Framework
     "rest_framework", 
+    # Django filters 
+    'django_filters', 
 ]
 
 MIDDLEWARE = [
@@ -140,7 +144,7 @@ AUTH_USER_MODEL = "accounts.User"
 
 # rest framework settings
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
-    ]
+    # "DEFAULT_PERMISSION_CLASSES": [
+    #     "rest_framework.permissions.IsAuthenticated",
+    # ]
 }

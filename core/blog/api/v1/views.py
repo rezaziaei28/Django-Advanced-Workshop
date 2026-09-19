@@ -10,6 +10,7 @@ from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIVi
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from .permissions import IsOwnerOrReadOnly
+from django_filters.rest_framework import DjangoFilterBackend
 
 # Create your views here.
 
@@ -187,6 +188,10 @@ class PostModelViewSet(viewsets.ModelViewSet):
       queryset = Post.objects.filter(status=True)
       permission_classes = [IsAuthenticatedOrReadOnly,IsOwnerOrReadOnly]  
       serializer_class = PostSerializers 
+
+      # filter backend
+      filter_backends = [DjangoFilterBackend]
+      filterset_fields = ['category', 'author', 'title', 'status']
 
       @action(methods=['get'],detail=False)
       def get_is_ok(self,request):
