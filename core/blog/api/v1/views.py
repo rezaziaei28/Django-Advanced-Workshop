@@ -192,7 +192,7 @@ class PostModelViewSet(viewsets.ModelViewSet):
 
       # filter backend
       filter_backends = [DjangoFilterBackend, SearchFilter,OrderingFilter]
-      filterset_fields = ['category', 'author', 'status']
+      filterset_fields = {'category':['exact','in'], 'author':['exact','in'], 'status':['exact','in']}
       # we can use regexes for it for example
       # serch_fields = ['=title']  we must serch precise title for show post
       # else does not show post
