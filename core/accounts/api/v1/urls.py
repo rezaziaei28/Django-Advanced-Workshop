@@ -1,8 +1,16 @@
 from django.urls import include, path
-from rest_framework.routers import DefaultRouter
+from . import views
 
-router = DefaultRouter()
+app_name = 'api_v1'
 
 urlpatterns = [
-    path("", include(router.urls)),
+    # registration
+    path("register/", views.RegisterAPIView.as_view(), name="register"),
+    # change password
+    
+    # reset password
+
+    # login tocken
+    
+    # login JWT  
 ]
