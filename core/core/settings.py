@@ -47,6 +47,9 @@ INSTALLED_APPS = [
     # Django filters 
     'django_filters', 
 
+    # Django Token Authentication
+    'rest_framework.authtoken',
+
     'drf_yasg',
 ]
 
@@ -150,4 +153,10 @@ REST_FRAMEWORK = {
     # "DEFAULT_PERMISSION_CLASSES": [
     #     "rest_framework.permissions.IsAuthenticated",
     # ]
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ]
 }
