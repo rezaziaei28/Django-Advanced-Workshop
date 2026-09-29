@@ -50,6 +50,9 @@ INSTALLED_APPS = [
     # Django Token Authentication
     'rest_framework.authtoken',
 
+    # Django JWT
+     'rest_framework_simplejwt',
+
     'drf_yasg',
 ]
 
@@ -158,5 +161,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ]
 }
