@@ -135,21 +135,49 @@ I added Docker and Docker Compose to the project.
 My goal was to understand how a Django application can run inside containers and how the development environment can be configured separately from the application code.
 
 ---
-
 ## Django REST Framework
 
-I recently started learning Django REST Framework.
+I started learning DRF step by step and implemented many concepts in this project.
 
-So far, I have started working with:
+### Serializers
 
-- Serializers
-- Converting Django model data to JSON
-- API views
-- GET requests
-- POST requests
-- Creating new objects through an API
-  
-I am still learning DRF and will continue adding more concepts as I progress.
+I learned how to use ModelSerializer for Post and Category and I also learned how to add ReadOnlyField with source to bring model methods into the serializer and how to use SerializerMethodField for fields that need the request object and how to use write_only for sensitive fields like passwords and how to write a custom validate method and how to override create to set the author from the request user.
+
+### Views
+
+I learned all the different levels of DRF views and used them in the project and this includes function-based views with the api_view decorator and APIView class and generics like ListCreateAPIView and RetrieveUpdateDestroyAPIView and mixins like ListModelMixin and CreateModelMixin and concrete view classes and ViewSets and ModelViewSet and DefaultRouter.
+
+### Serializer Advanced
+
+I learned how to use to_representation to customize the output for list and detail and how to show nested category with CategorySerializer and how to remove fields based on the view and how to add custom fields like state and relative_url.
+
+### Permissions
+
+I used IsAuthenticatedOrReadOnly and I also wrote my own custom permission called IsOwnerOrReadOnly with has_object_permission to check if the request user owns the object.
+
+### ViewSet Features
+
+I learned how to use the action decorator for custom endpoints and how to add filtering with DjangoFilterBackend and search with SearchFilter and search_fields and ordering with OrderingFilter and ordering_fields and I also learned lookup expressions like exact and in for filterset_fields.
+
+### Pagination
+
+I wrote a custom DefultPagination with PageNumberPagination and set page_size and override get_paginated_response to add links and total counts.
+
+### Authentication for API
+
+I learned token authentication and added CustomObtainAuthToken and CustomDiscardAuthToken and I also learned JWT authentication with rest_framework_simplejwt and added token create refresh and verify endpoints.
+
+### User Registration API
+
+I wrote a RegisterSerializer with password and password1 fields and a custom validate method using Django password validators and a RegisterAPIView that creates a user and returns the email.
+
+### API Documentation
+
+I added Swagger and ReDoc with drf-yasg and a schema_view with openapi info and a JSON schema output for client generators.
+
+### API Testing
+
+I used Postman to test all the API endpoints and I tested register login logout token and JWT endpoints and I tested CRUD operations on posts and categories and I tested filtering searching ordering and pagination and I tested permissions with different users to check IsOwnerOrReadOnly.
 
 ---
 
@@ -169,11 +197,10 @@ Some of the topics I plan to continue working on are:
 
 - Django Forms and ModelForms
 - User permissions and groups
-- Pagination
-- Search and filtering
 - Django testing
-- More Django REST Framework concepts
-- API authentication and permissions
+- More DRF concepts like Throttling and Versioning
+- JWT customization for returning user info
+- API documentation improvements
 
 ---
 
@@ -182,13 +209,16 @@ Some of the topics I plan to continue working on are:
 - Python
 - Django 5.2
 - Django REST Framework
+- django-filter
+- drf-yasg
+- rest_framework_simplejwt
 - SQLite
 - Docker
 - Docker Compose
 - python-decouple
 - Git
 - GitHub
-
+- Postman
 ---
 
 ## Running the Project
@@ -204,7 +234,7 @@ docker-compose exec web python manage.py createsuperuser
 ### Then open 
 http://localhost:8000
 
-### Witheout Docker 
+### Without Docker 
 
 ```bash
 git clone https://github.com/rezaziaei28/Django-Advanced-Workshop.git
