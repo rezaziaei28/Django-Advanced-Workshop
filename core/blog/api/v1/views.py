@@ -187,7 +187,7 @@ class PostViewSet(viewsets.ViewSet):
 
 class PostModelViewSet(viewsets.ModelViewSet):
       queryset = Post.objects.filter(status=True)
-      permission_classes = [IsAuthenticatedOrReadOnly,IsOwnerOrReadOnly]  
+      permission_classes = [IsAuthenticated,IsOwnerOrReadOnly]  
       serializer_class = PostSerializers 
 
       # filter backend
