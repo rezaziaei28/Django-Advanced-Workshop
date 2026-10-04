@@ -13,7 +13,8 @@ urlpatterns = [
     path("register/", RegisterAPIView.as_view(), name="register"),
 
     # change password
-    
+    path('password-change/', ChangePasswordApiView.as_view(), name='change-password'),
+
     # reset password
 
     # login tocken
