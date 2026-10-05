@@ -64,3 +64,17 @@ class ChangePasswordApiView(generics.GenericAPIView):
 With `GenericAPIView` I have full control and I can define only the methods I want. If someone sends `PATCH` now they get `405 Method Not Allowed` which is exactly what I want.
 
 This also taught me that not every Stack Overflow answer fits my needs and sometimes I need to adapt the code instead of copying it directly.
+
+### read_only_fields in Meta does not work for nested fields
+
+In my ProfileSerializer I had an email field that comes from user.email and I wanted it to be read only so I added read_only_fields = ['email'] in the Meta class. But it did not work and the email field was still showing on the page as editable.
+
+After some testing I understood that read_only_fields in Meta only works for fields that are automatically taken from the model. When I define a field manually in the serializer class, the Meta class does not control it and I have to set read_only=True directly on the field itself.
+
+So I changed the email field to this:
+
+```python
+email = serializers.CharField(source='user.email', read_only=True)
+```
+
+And after that it worked. This taught me that Meta options only apply to auto generated fields and not to fields that I define myself in the serializer.
