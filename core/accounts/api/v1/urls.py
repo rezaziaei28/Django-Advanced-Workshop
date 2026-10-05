@@ -30,4 +30,7 @@ urlpatterns = [
 
     path('jwt/create/', CustomTokenObtainPairView.as_view(), name='jwt-create'),
 
+    # profile user
+    path('profile/', ProfileApiView.as_view(), name="profile")
+
 ]

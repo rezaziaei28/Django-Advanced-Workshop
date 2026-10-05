@@ -1,5 +1,5 @@
 from rest_framework  import serializers
-from accounts.models import User
+from accounts.models import User, Profile
 from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -57,3 +57,16 @@ class ChangePasswordSerializer(serializers.Serializer):
             
 
             return super().validate(attrs)
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+
+      email = serializers.CharField(source='user.email', read_only=True)
+
+      class Meta:
+            model = Profile
+            fields = ('id', 'first_name', 'last_name','image', 'description', 'email',)
+            
+            # read_only_fields = ['email'] I have problem at this line is 
+            # read_only_fields does not execute, and it display this field on the page.
+            # This problem is solved by adding read_only=True to email Nested fields is issue
