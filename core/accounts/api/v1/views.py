@@ -1,6 +1,6 @@
 from rest_framework import generics
 from rest_framework import status
-from .serializers import (RegisterSerializer, CustomTokenObtainPairSerializers, 
+from .serializers import (RegisterSerializer, CustomTokenObtainPairSerializers, CustomAuthTokenSerializer,
                           ChangePasswordSerializer, ProfileSerializer)
 
 from rest_framework.response import Response
@@ -34,18 +34,19 @@ class RegisterAPIView(generics.GenericAPIView):
 
       
 class CustomObtainAuthToken(ObtainAuthToken):
+      serializer_class = CustomAuthTokenSerializer
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data,
-                                           context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            'token': token.key,
-            'user_id': user.pk,
-            'email': user.email
-        })
+      def post(self, request, *args, **kwargs):
+            serializer = self.serializer_class(data=request.data,
+                                                context={'request': request})
+            serializer.is_valid(raise_exception=True)
+            user = serializer.validated_data['user']
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
+                  'token': token.key,
+                  'user_id': user.pk,
+                  'email': user.email
+            })
 
 class CustomDiscardAuthToken(APIView):
      '''This class for logout at the site'''

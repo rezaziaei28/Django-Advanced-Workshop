@@ -3,7 +3,8 @@ from accounts.models import User, Profile
 from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth import authenticate
 
 class RegisterSerializer(serializers.ModelSerializer):
       password = serializers.CharField(max_length=255, write_only=True)
@@ -37,6 +38,34 @@ class CustomTokenObtainPairSerializers(TokenObtainPairSerializer):
             validate_data['email'] = self.user.email
             validate_data['user_id'] = self.user.id
             return validate_data
+
+class CustomAuthTokenSerializer(serializers.Serializer):
+      email = serializers.CharField(label=_("Email"),write_only=True)
+      password = serializers.CharField(label=_("Password"),style={'input_type': 'password'},
+            trim_whitespace=False,write_only=True)
+      token = serializers.CharField(label=_("Token"),read_only=True)
+
+      def validate(self, attrs):
+            username = attrs.get('email')
+            password = attrs.get('password')
+
+            if username and password:
+                  user = authenticate(request=self.context.get('request'),
+                  username=username, password=password)
+            
+                  if not user:
+                        msg = _('Unable to log in with provided credentials.')
+                        raise serializers.ValidationError(msg, code='authorization')
+
+                  if not user.is_verified:
+                        raise serializers.ValidationError({'detail':'user is not verified'})
+
+            else:
+                  msg = _('Must include "username" and "password".')
+                  raise serializers.ValidationError(msg, code='authorization')
+
+            attrs['user'] = user
+            return attrs
 
 class ChangePasswordSerializer(serializers.Serializer):
 
