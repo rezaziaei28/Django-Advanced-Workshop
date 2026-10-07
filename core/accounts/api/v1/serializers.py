@@ -35,6 +35,8 @@ class CustomTokenObtainPairSerializers(TokenObtainPairSerializer):
 
       def validate(self, attrs):
             validate_data = super().validate(attrs)
+            if not self.user.is_verified:
+                  raise serializers.ValidationError({'detail':'user is not verified'})
             validate_data['email'] = self.user.email
             validate_data['user_id'] = self.user.id
             return validate_data
