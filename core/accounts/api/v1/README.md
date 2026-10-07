@@ -78,3 +78,21 @@ email = serializers.CharField(source='user.email', read_only=True)
 ```
 
 And after that it worked. This taught me that Meta options only apply to auto generated fields and not to fields that I define myself in the serializer.
+
+## Notes and Things I Learned
+### Difference between get_object and get_queryset in ProfileApiView
+
+When I wrote ProfileApiView with RetrieveUpdateAPIView I wanted the profile of the logged in user to be returned automatically without needing a pk in the URL. By default RetrieveUpdateAPIView uses the pk to find the object but I wanted it to use the request user instead.
+
+So I overrode get_object like this:
+
+```python
+def get_object(self):
+    queryset = self.get_queryset()
+    obj = get_object_or_404(queryset, user=self.request.user)
+    return obj
+```
+
+What I learned is that get_queryset returns the list of all objects and get_object returns one specific object. get_object uses get_queryset as a base and then filters it to find the exact object. So in my case get_queryset returns all profiles and get_object filters it to only the profile of the request user.
+
+This taught me that get_queryset is used for list views and get_object is used for detail views and I can override get_object when I want a different way of finding the object instead of the default pk lookup.
