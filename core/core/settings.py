@@ -54,6 +54,9 @@ INSTALLED_APPS = [
      'rest_framework_simplejwt',
 
     'drf_yasg',
+
+    # send email
+    'mail_templated',
 ]
 
 MIDDLEWARE = [
