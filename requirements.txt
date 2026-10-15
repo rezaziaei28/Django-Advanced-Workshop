@@ -19,3 +19,4 @@ drf-yasg[validation]
 
 # Email third party_modules
 django-mail-templated
+pyjwt[crypto]==2.14.0

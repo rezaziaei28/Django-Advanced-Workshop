@@ -1,7 +1,7 @@
 from rest_framework import generics
 from rest_framework import status
 from .serializers import (RegisterSerializer, CustomTokenObtainPairSerializers, CustomAuthTokenSerializer,
-                          ChangePasswordSerializer, ProfileSerializer)
+                          ChangePasswordSerializer, ProfileSerializer, ActivationResandSerializers)
 
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -17,8 +17,13 @@ from mail_templated import send_mail
 from ..utils import EmailThread
 from mail_templated import EmailMessage
 
-User = get_user_model()
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import AuthenticationFailed
+import jwt
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
+from django.conf import settings
 
+User = get_user_model()
 
 class RegisterAPIView(generics.GenericAPIView):
       """
@@ -30,11 +35,27 @@ class RegisterAPIView(generics.GenericAPIView):
             serializer = RegisterSerializer(data= request.data)
             if serializer.is_valid():
                   serializer.save()
+                  email = serializer.validated_data['email']
                   data = {
-                        'email': serializer.validated_data['email']
+                        'email': email
                   }
+
+                  user_object = get_object_or_404(User, email = email)
+                  token = self.get_tokens_for_user(user_object)
+      
+                  email_object = EmailMessage('email/activation_email.tpl', {'token': token},
+                                          'ziazia@gmail.com', to=[email])
+                  EmailThread(email_object).start()
                   return Response(data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+      def get_tokens_for_user(self,user):
+            if not user.is_active:
+                  raise AuthenticationFailed("User is not active")
+
+            refresh = RefreshToken.for_user(user)
+
+            return str(refresh.access_token)
 
       
 class CustomObtainAuthToken(ObtainAuthToken):
@@ -51,6 +72,7 @@ class CustomObtainAuthToken(ObtainAuthToken):
                   'user_id': user.pk,
                   'email': user.email
             })
+
 
 class CustomDiscardAuthToken(APIView):
      '''This class for logout at the site'''
@@ -117,9 +139,70 @@ class ProfileApiView(generics.RetrieveUpdateAPIView):
 class TestEmailSend(generics.GenericAPIView):
 
       def get(self, request, *args, **kwargs):
+            self.email = "rezaziaei28@gmail.com"
 
-            email_object = EmailMessage('email/hello.tpl', {'name': 'zia'},
-                                    'ziazia@gmail.com', to=['rezaziaei28@gmail.com'])
+            # User.objects.get() it's equal with get_object_or_404()
+            user_object = get_object_or_404(User, email= self.email)
+            token = self.get_tokens_for_user(user_object)
+
+            email_object = EmailMessage('email/hello.tpl', {'token': token},
+                                    'ziazia@gmail.com', to=[self.email])
             EmailThread(email_object).start()
             return Response("email send")
 
+
+      def get_tokens_for_user(self,user):
+            if not user.is_active:
+                  raise AuthenticationFailed("User is not active")
+
+            refresh = RefreshToken.for_user(user)
+
+            return str(refresh.access_token)
+
+class ActivationApiViews(APIView):
+
+      def get(self, request,token, *args, **kwargs):
+            
+            # first I just: decode -> id user
+            try:
+                  token = jwt.decode(token, settings.SECRET_KEY , algorithms=['HS256'])
+                  user_id = token.get("user_id")
+            except ExpiredSignatureError:
+                  return Response({"details":"token has been expired"}, status=status.HTTP_400_BAD_REQUEST)
+            except InvalidTokenError:
+                  return Response({"details": "token is not valid"}, status=400)
+            
+            # object user 
+            # user_object = User.objects.get(pk = user_id)
+            user_object = get_object_or_404(User, pk=user_id)
+            # is_verified -> True
+            user_object.is_verified = True
+            user_object.save()
+
+            return Response({'detaile': 'your accounts have been verified and activated seccussfully'})
+
+class ActivationResandApiViews(generics.GenericAPIView):
+      serializer_class = ActivationResandSerializers
+
+      def post(self, request, *args, **kwargs):
+            serializers = self.serializer_class(data=request.data) 
+            serializers.is_valid(raise_exception=True)
+            user_object = serializers.validated_data['user'] 
+            token = self.get_tokens_for_user(user_object)
+
+            email_object = EmailMessage('email/activation_email.tpl', {'token': token},
+                                    'ziazia@gmail.com', to=[user_object.email])
+            EmailThread(email_object).start()
+
+            return Response({'detaile': 'your activation resand successfuly'}, status=status.HTTP_200_OK)
+            # else:
+            #       return Response({'detaile': 'request failed'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+      def get_tokens_for_user(self,user):
+            if not user.is_active:
+                  raise AuthenticationFailed("User is not active")
+
+            refresh = RefreshToken.for_user(user)
+
+            return str(refresh.access_token)

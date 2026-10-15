@@ -5,6 +5,7 @@ from django.core import exceptions
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import authenticate
+from django.shortcuts import get_object_or_404
 
 class RegisterSerializer(serializers.ModelSerializer):
       password = serializers.CharField(max_length=255, write_only=True)
@@ -101,3 +102,25 @@ class ProfileSerializer(serializers.ModelSerializer):
             # read_only_fields = ['email'] I have problem at this line is 
             # read_only_fields does not execute, and it display this field on the page.
             # This problem is solved by adding read_only=True to email Nested fields is issue
+
+
+class ActivationResandSerializers(serializers.Serializer):
+      email = serializers.EmailField(required = True)
+
+      def validate(self, attrs):
+            email = attrs.get('email')
+
+            try:
+                  user_object = User.objects.get(email= email)
+            except User.DoesNotExist:
+                  raise serializers.ValidationError(
+                        {"detaile":"user dose not exist"}
+                  )
+
+            if user_object.is_verified:
+                  raise serializers.ValidationError(
+                        {"detaile":"user is already activated and verifid"}
+                  )
+            
+            attrs['user'] = user_object
+            return super().validate(attrs)

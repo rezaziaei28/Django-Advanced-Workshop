@@ -15,10 +15,10 @@ urlpatterns = [
     path('test-email/', TestEmailSend.as_view(), name='rest-email'),
 
     # activation
-    # path('activation/sendconfirm/',),
+    path('activation/sendconfirm/<str:token>', ActivationApiViews.as_view(), name='activation'),
 
     # resand activation
-    # path('activation/resand/'),
+    path('activation/resand/', ActivationResandApiViews.as_view(), name='activation-resand'),
 
     # change password
     path('password-change/', ChangePasswordApiView.as_view(), name='change-password'),
