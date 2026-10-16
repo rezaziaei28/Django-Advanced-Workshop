@@ -1,18 +1,20 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated ,IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from .serializers import PostSerializers, CategorySerializers
-from ...models import Post, Category 
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
-from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from .permissions import IsOwnerOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+
+from ...models import Post, Category
+from .serializers import PostSerializers, CategorySerializers
+from .permissions import IsOwnerOrReadOnly
 from .pagination import DefultPagination
+
 # Create your views here.
 
 """ This is function base view for show post and create ....
@@ -63,7 +65,7 @@ def post_detail(request,id):
       #       return Response(serializer.data)
       # except Post.DoesNotExist:
       #       return Response({"detail":"Post is not exist"}, status=status.HTTP_404_NOT_FOUND)
-"""    
+"""
 
 """ This is class base that use APIView
 class PostList(APIView):
@@ -117,7 +119,7 @@ class PostDetail(APIView):
             post.delete()
             return Response({"detail":"item removed successfully"}, status=status.HTTP_204_NO_CONTENT)
                         
-"""   
+"""
 
 """# This is class base view that use generics (ListCreateAPIView,RetrieveUpdateDestroyAPIView)
 class PostList(ListCreateAPIView):
@@ -183,32 +185,36 @@ class PostViewSet(viewsets.ViewSet):
             post = get_object_or_404(Post, pk=id, status=True)
             post.delete()
             return Response({"detail":"item removed successfully"}, status=status.HTTP_204_NO_CONTENT)
-"""   
+"""
+
 
 class PostModelViewSet(viewsets.ModelViewSet):
-      queryset = Post.objects.filter(status=True)
-      permission_classes = [IsAuthenticated,IsOwnerOrReadOnly]  
-      serializer_class = PostSerializers 
+    queryset = Post.objects.filter(status=True)
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    serializer_class = PostSerializers
 
-      # filter backend
-      filter_backends = [DjangoFilterBackend, SearchFilter,OrderingFilter]
-      filterset_fields = {'category':['exact','in'], 'author':['exact','in'], 'status':['exact','in']}
-      # we can use regexes for it for example
-      # serch_fields = ['=title']  we must serch precise title for show post
-      # else does not show post
-      search_fields = ['title', 'content']
-      ordering_fields = ['published_date']
+    # filter backend
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = {
+        "category": ["exact", "in"],
+        "author": ["exact", "in"],
+        "status": ["exact", "in"],
+    }
+    # we can use regexes for it for example
+    # serch_fields = ['=title']  we must serch precise title for show post
+    # else does not show post
+    search_fields = ["title", "content"]
+    ordering_fields = ["published_date"]
 
-      # this for pagination post
-      pagination_class = DefultPagination
+    # this for pagination post
+    pagination_class = DefultPagination
 
+    @action(methods=["get"], detail=False)
+    def get_is_ok(self, request):
+        return Response({"detail": "Is ok"})
 
-
-      @action(methods=['get'],detail=False)
-      def get_is_ok(self,request):
-            return Response({'detail':'Is ok'})
 
 class CategoryModelViewSet(viewsets.ModelViewSet):
-      permission_classes = [IsAuthenticatedOrReadOnly]  
-      serializer_class = CategorySerializers 
-      queryset = Category.objects.all()
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    serializer_class = CategorySerializers
+    queryset = Category.objects.all()

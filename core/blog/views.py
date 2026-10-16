@@ -1,6 +1,13 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic.base import TemplateView, RedirectView
-from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
+from django.views.generic import (
+    ListView,
+    DetailView,
+    FormView,
+    CreateView,
+    UpdateView,
+    DeleteView,
+)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 
@@ -23,17 +30,19 @@ def function_name(request):
     return render(request,'name_page.html',context)
 """
 
+
 class IndexView(TemplateView):
-    '''
+    """
     a class base view for show index page
-    '''
+    """
+
     template_name = "blog/post_list.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["posts"] = Post.objects.all()
         return context
-    
+
 
 """ FBV for Redirect
 from django.shortcuts import redirect
@@ -46,41 +55,43 @@ def redirect_to_google(request):
 
 
 class RedirectToJadiDotNet(RedirectView):
-    '''
+    """
     Redirect view simple for google
-    '''
-    
-    url = 'https://jadi.net/'
+    """
+
+    url = "https://jadi.net/"
 
     def get_redirect_url(self, *args, **kwargs):
-        post = get_object_or_404(Post, pk=kwargs['pk'])
+        post = get_object_or_404(Post, pk=kwargs["pk"])
         return super().get_redirect_url(*args, **kwargs)
 
 
 class PostListView(LoginRequiredMixin, ListView):
-    '''
+    """
     This class show all post on page
-    '''
+    """
 
-    # model = Post This is two solition for getting Post form models 
+    # model = Post This is two solition for getting Post form models
     # queryset = Post.objects.all()
 
-    context_object_name = 'posts'
-    paginate_by = 1 # for next page url/?page=2
+    context_object_name = "posts"
+    paginate_by = 1  # for next page url/?page=2
 
     def get_queryset(self):
         posts = Post.objects.filter(status=1)
         return posts
 
-class PostDetailView(LoginRequiredMixin, DetailView):
 
-    '''
+class PostDetailView(LoginRequiredMixin, DetailView):
+    """
     This class show a post on page
-    '''
+    """
+
     model = Post
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs)
+
 
 """ Learn FormView
 class PostCreateView(FormView):
@@ -98,37 +109,39 @@ class PostCreateView(FormView):
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
-    '''
-    This class is create a new post with (CreateView) 
-    '''
+    """
+    This class is create a new post with (CreateView)
+    """
 
     model = Post
     # fields = ['author', 'title', 'content', 'category', 'status', 'published_date']
     form_class = PostForm
-    success_url = '/blog/post/'
+    success_url = "/blog/post/"
 
     def form_valid(self, form):
-        form.instance.author = self.request.user 
+        form.instance.author = self.request.user
         return super().form_valid(form)
-    
+
 
 class PostEditView(LoginRequiredMixin, UpdateView):
-    '''
-    This class is for edit a post 
-    '''    
+    """
+    This class is for edit a post
+    """
 
     model = Post
     form_class = PostForm
-    success_url = '/blog/post/'
-    
+    success_url = "/blog/post/"
+
+
 class PostDeleteView(LoginRequiredMixin, DeleteView):
-    '''
-    This class is for delete post 
-    '''
+    """
+    This class is for delete post
+    """
 
     model = Post
-    success_url = '/blog/post/'
+    success_url = "/blog/post/"
+
 
 @api_view()
 def api_post_list(request):
-    return Response({'name': 'ali', 'age': 19})
+    return Response({"name": "ali", "age": 19})

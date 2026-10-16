@@ -2,23 +2,23 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from .views import PostModelViewSet, CategoryModelViewSet
 
-app_name = 'api_v1'
+app_name = "api_v1"
 
 router = DefaultRouter()
 # This roter is about post
-router.register('post', PostModelViewSet, basename='post')
+router.register("post", PostModelViewSet, basename="post")
 
 # This roter is about category
-router.register('category', CategoryModelViewSet, basename='category')
+router.register("category", CategoryModelViewSet, basename="category")
 
 urlpatterns = router.urls
 
 # urlpatterns = [
-#     # This path is about function base view 
+#     # This path is about function base view
 #     # path("post/", post_list, name="post-list"),
 #     # path("post/<int:id>/", post_detail, name="post-detail")
 
-#     # This path is about class base view PostList and PostDetail 
+#     # This path is about class base view PostList and PostDetail
 #     # path("post/", PostList.as_view(), name="post-list"),
 #     # path("post/<int:id>/", PostDetail.as_view(), name="post-detail")
 

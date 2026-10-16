@@ -1,0 +1,2159 @@
+diff --git a/core/accounts/admin.py b/core/accounts/admin.py
+index 91957f2..67df7ef 100644
+--- a/core/accounts/admin.py
++++ b/core/accounts/admin.py
+@@ -1,61 +1,72 @@
+ from django.contrib import admin
+ from django.contrib.auth.admin import UserAdmin
+ from accounts.models import User, Profile
++
+ # Register your models here.
+ 
+-# I learning UserCreationForm but I won't use it in the project 
++# I learning UserCreationForm but I won't use it in the project
+ # from django.contrib.auth.forms import UserCreationForm
+ # class CustomUserCreationForm(UserCreationForm):
+ #     class Meta:
+ #         model = User
+ #         fields = UserCreationForm + ('email',)
+-# we write this code at the CustomUserAdmin   
++# we write this code at the CustomUserAdmin
+ # add_form = CustomUserCreationForm
+ 
+ 
+ class CustomUserAdmin(UserAdmin):
+     model = User
+-    
+-    list_display = ('email','is_superuser','is_active', 'is_verified')
+-    list_filter = ('email','is_superuser','is_active', 'is_verified')
+-    search_fields = ('email',)
+-    ordering = ('email',)
++
++    list_display = ("email", "is_superuser", "is_active", "is_verified")
++    list_filter = ("email", "is_superuser", "is_active", "is_verified")
++    search_fields = ("email",)
++    ordering = ("email",)
+ 
+     fieldsets = (
+-        ('Authentication', {
+-            "fields": (
+-                'email', 'password'
+-            ),
+-        }),
+-
+-        ('Permissions', {
+-            "fields": (
+-                'is_active', 'is_staff','is_superuser', 'is_verified'
+-            ),
+-        }),
+-
+-        ('user_permissions', {
+-            "fields": (
+-                'groups', 'user_permissions'
+-            ),
+-        }),
+-
+-         ('important date', {
+-            "fields": (
+-                'last_login',
+-            ),
+-        }),
++        (
++            "Authentication",
++            {
++                "fields": ("email", "password"),
++            },
++        ),
++        (
++            "Permissions",
++            {
++                "fields": ("is_active", "is_staff", "is_superuser", "is_verified"),
++            },
++        ),
++        (
++            "user_permissions",
++            {
++                "fields": ("groups", "user_permissions"),
++            },
++        ),
++        (
++            "important date",
++            {
++                "fields": ("last_login",),
++            },
++        ),
+     )
+ 
+     add_fieldsets = (
+-        (None, {
+-            'classes': ('wide',),
+-            "fields": (
+-                'email', 'password1', 'password2', 'is_active', 'is_staff','is_superuser', 'is_verified'
+-            ),
+-        }),
++        (
++            None,
++            {
++                "classes": ("wide",),
++                "fields": (
++                    "email",
++                    "password1",
++                    "password2",
++                    "is_active",
++                    "is_staff",
++                    "is_superuser",
++                    "is_verified",
++                ),
++            },
++        ),
+     )
+-    
++
+ 
+ admin.site.register(Profile)
+-admin.site.register(User, CustomUserAdmin)
+\ No newline at end of file
++admin.site.register(User, CustomUserAdmin)
+diff --git a/core/accounts/api/utils.py b/core/accounts/api/utils.py
+index c9bd4e7..efd5de8 100644
+--- a/core/accounts/api/utils.py
++++ b/core/accounts/api/utils.py
+@@ -1,12 +1,12 @@
+ import threading
+ 
++
+ class EmailThread(threading.Thread):
+-      # overriding constructor
+-      def __init__(self, email_object):
+-            # calling parent class constructor
+-            threading.Thread.__init__(self)
+-            self.email_object = email_object 
++    # overriding constructor
++    def __init__(self, email_object):
++        # calling parent class constructor
++        threading.Thread.__init__(self)
++        self.email_object = email_object
+ 
+-      def run(self):
+-            self.email_object.send()
+-      
++    def run(self):
++        self.email_object.send()
+diff --git a/core/accounts/api/v1/serializers.py b/core/accounts/api/v1/serializers.py
+index a91b0f6..9f223f9 100644
+--- a/core/accounts/api/v1/serializers.py
++++ b/core/accounts/api/v1/serializers.py
+@@ -1,4 +1,4 @@
+-from rest_framework  import serializers
++from rest_framework import serializers
+ from accounts.models import User, Profile
+ from django.contrib.auth.password_validation import validate_password
+ from django.core import exceptions
+@@ -7,120 +7,132 @@ from django.utils.translation import gettext_lazy as _
+ from django.contrib.auth import authenticate
+ from django.shortcuts import get_object_or_404
+ 
++
+ class RegisterSerializer(serializers.ModelSerializer):
+-      password = serializers.CharField(max_length=255, write_only=True)
+-      password1 = serializers.CharField(max_length = 255, write_only=True)
+-      class Meta:
+-            model = User
+-            fields = ['email', 'password', 'password1']
++    password = serializers.CharField(max_length=255, write_only=True)
++    password1 = serializers.CharField(max_length=255, write_only=True)
++
++    class Meta:
++        model = User
++        fields = ["email", "password", "password1"]
+ 
+-      def validate(self, attrs):
+-            if attrs.get('password') != attrs.get('password1'):
+-                  raise serializers.ValidationError({'detail':'password dose not match'})
++    def validate(self, attrs):
++        if attrs.get("password") != attrs.get("password1"):
++            raise serializers.ValidationError({"detail": "password dose not match"})
+ 
+-            try:
+-                  validate_password(attrs.get('password'))
+-                  # validate_password(attrs.get('password1'))
+-            except exceptions.ValidationError as e:
+-                  raise serializers.ValidationError({'password':list(e.messages)})
++        try:
++            validate_password(attrs.get("password"))
++            # validate_password(attrs.get('password1'))
++        except exceptions.ValidationError as e:
++            raise serializers.ValidationError({"password": list(e.messages)})
+ 
+-            
+-            return super().validate(attrs)
++        return super().validate(attrs)
+ 
+-      def create(self, validated_data):
+-            validated_data.pop('password1' ,None)
+-            return User.objects.create_user(**validated_data)
++    def create(self, validated_data):
++        validated_data.pop("password1", None)
++        return User.objects.create_user(**validated_data)
+ 
+ 
+ class CustomTokenObtainPairSerializers(TokenObtainPairSerializer):
+ 
+-      def validate(self, attrs):
+-            validate_data = super().validate(attrs)
+-            if not self.user.is_verified:
+-                  raise serializers.ValidationError({'detail':'user is not verified'})
+-            validate_data['email'] = self.user.email
+-            validate_data['user_id'] = self.user.id
+-            return validate_data
++    def validate(self, attrs):
++        validate_data = super().validate(attrs)
++        if not self.user.is_verified:
++            raise serializers.ValidationError({"detail": "user is not verified"})
++        validate_data["email"] = self.user.email
++        validate_data["user_id"] = self.user.id
++        return validate_data
++
+ 
+ class CustomAuthTokenSerializer(serializers.Serializer):
+-      email = serializers.CharField(label=_("Email"),write_only=True)
+-      password = serializers.CharField(label=_("Password"),style={'input_type': 'password'},
+-            trim_whitespace=False,write_only=True)
+-      token = serializers.CharField(label=_("Token"),read_only=True)
++    email = serializers.CharField(label=_("Email"), write_only=True)
++    password = serializers.CharField(
++        label=_("Password"),
++        style={"input_type": "password"},
++        trim_whitespace=False,
++        write_only=True,
++    )
++    token = serializers.CharField(label=_("Token"), read_only=True)
++
++    def validate(self, attrs):
++        username = attrs.get("email")
++        password = attrs.get("password")
++
++        if username and password:
++            user = authenticate(
++                request=self.context.get("request"),
++                username=username,
++                password=password,
++            )
+ 
+-      def validate(self, attrs):
+-            username = attrs.get('email')
+-            password = attrs.get('password')
++            if not user:
++                msg = _("Unable to log in with provided credentials.")
++                raise serializers.ValidationError(msg, code="authorization")
+ 
+-            if username and password:
+-                  user = authenticate(request=self.context.get('request'),
+-                  username=username, password=password)
+-            
+-                  if not user:
+-                        msg = _('Unable to log in with provided credentials.')
+-                        raise serializers.ValidationError(msg, code='authorization')
++            if not user.is_verified:
++                raise serializers.ValidationError({"detail": "user is not verified"})
+ 
+-                  if not user.is_verified:
+-                        raise serializers.ValidationError({'detail':'user is not verified'})
++        else:
++            msg = _('Must include "username" and "password".')
++            raise serializers.ValidationError(msg, code="authorization")
+ 
+-            else:
+-                  msg = _('Must include "username" and "password".')
+-                  raise serializers.ValidationError(msg, code='authorization')
++        attrs["user"] = user
++        return attrs
+ 
+-            attrs['user'] = user
+-            return attrs
+ 
+ class ChangePasswordSerializer(serializers.Serializer):
+ 
+-      old_password = serializers.CharField(required=True)
+-      new_password = serializers.CharField(required=True)
+-      new_password1 = serializers.CharField(required=True)
++    old_password = serializers.CharField(required=True)
++    new_password = serializers.CharField(required=True)
++    new_password1 = serializers.CharField(required=True)
+ 
+-      def validate(self, attrs):
+-            '''This function for chacking that this password is valid'''
+-            if attrs.get('new_password') != attrs.get('new_password1'):
+-                  raise serializers.ValidationError(
+-                        {'detail':'password dose not match'}
+-                        )
+-            try:
+-                  validate_password(attrs.get('new_password'))
+-            except exceptions.ValidationError as e:
+-                  raise serializers.ValidationError({'new_password1':list(e.messages)})
+-            
++    def validate(self, attrs):
++        """This function for chacking that this password is valid"""
++        if attrs.get("new_password") != attrs.get("new_password1"):
++            raise serializers.ValidationError({"detail": "password dose not match"})
++        try:
++            validate_password(attrs.get("new_password"))
++        except exceptions.ValidationError as e:
++            raise serializers.ValidationError({"new_password1": list(e.messages)})
+ 
+-            return super().validate(attrs)
++        return super().validate(attrs)
+ 
+ 
+ class ProfileSerializer(serializers.ModelSerializer):
+ 
+-      email = serializers.CharField(source='user.email', read_only=True)
++    email = serializers.CharField(source="user.email", read_only=True)
+ 
+-      class Meta:
+-            model = Profile
+-            fields = ('id', 'first_name', 'last_name','image', 'description', 'email',)
+-            
+-            # read_only_fields = ['email'] I have problem at this line is 
+-            # read_only_fields does not execute, and it display this field on the page.
+-            # This problem is solved by adding read_only=True to email Nested fields is issue
++    class Meta:
++        model = Profile
++        fields = (
++            "id",
++            "first_name",
++            "last_name",
++            "image",
++            "description",
++            "email",
++        )
++
++        # read_only_fields = ['email'] I have problem at this line is
++        # read_only_fields does not execute, and it display this field on the page.
++        # This problem is solved by adding read_only=True to email Nested fields is issue
+ 
+ 
+ class ActivationResandSerializers(serializers.Serializer):
+-      email = serializers.EmailField(required = True)
+-
+-      def validate(self, attrs):
+-            email = attrs.get('email')
+-
+-            try:
+-                  user_object = User.objects.get(email= email)
+-            except User.DoesNotExist:
+-                  raise serializers.ValidationError(
+-                        {"detaile":"user dose not exist"}
+-                  )
+-
+-            if user_object.is_verified:
+-                  raise serializers.ValidationError(
+-                        {"detaile":"user is already activated and verifid"}
+-                  )
+-            
+-            attrs['user'] = user_object
+-            return super().validate(attrs)
+\ No newline at end of file
++    email = serializers.EmailField(required=True)
++
++    def validate(self, attrs):
++        email = attrs.get("email")
++
++        try:
++            user_object = User.objects.get(email=email)
++        except User.DoesNotExist:
++            raise serializers.ValidationError({"detaile": "user dose not exist"})
++
++        if user_object.is_verified:
++            raise serializers.ValidationError(
++                {"detaile": "user is already activated and verifid"}
++            )
++
++        attrs["user"] = user_object
++        return super().validate(attrs)
+diff --git a/core/accounts/api/v1/urls/__init__.py b/core/accounts/api/v1/urls/__init__.py
+index 3da8589..793a960 100644
+--- a/core/accounts/api/v1/urls/__init__.py
++++ b/core/accounts/api/v1/urls/__init__.py
+@@ -1,10 +1,8 @@
+ from django.urls import include, path
+ 
+ urlpatterns = [
+-      # accounts
+-      path('', include('accounts.api.v1.urls.accounts')),
+-      
+-      # profile user
+-      path('profile/', include('accounts.api.v1.urls.profile'))
+-
++    # accounts
++    path("", include("accounts.api.v1.urls.accounts")),
++    # profile user
++    path("profile/", include("accounts.api.v1.urls.profile")),
+ ]
+diff --git a/core/accounts/api/v1/urls/accounts.py b/core/accounts/api/v1/urls/accounts.py
+index 9c272cd..dab99b4 100644
+--- a/core/accounts/api/v1/urls/accounts.py
++++ b/core/accounts/api/v1/urls/accounts.py
+@@ -1,40 +1,38 @@
+ from django.urls import path
+-from ..views import * 
++from ..views import *
+ from rest_framework_simplejwt.views import (
+     TokenObtainPairView,
+-    TokenRefreshView,  
++    TokenRefreshView,
+     TokenVerifyView,
+ )
+ 
+-
+ urlpatterns = [
+     # registration
+     path("register/", RegisterAPIView.as_view(), name="register"),
+-
+     # test email
+-    path('test-email/', TestEmailSend.as_view(), name='rest-email'),
+-
++    path("test-email/", TestEmailSend.as_view(), name="rest-email"),
+     # activation
+-    path('activation/sendconfirm/<str:token>', ActivationApiViews.as_view(), name='activation'),
+-
++    path(
++        "activation/sendconfirm/<str:token>",
++        ActivationApiViews.as_view(),
++        name="activation",
++    ),
+     # resand activation
+-    path('activation/resand/', ActivationResandApiViews.as_view(), name='activation-resand'),
+-
++    path(
++        "activation/resand/",
++        ActivationResandApiViews.as_view(),
++        name="activation-resand",
++    ),
+     # change password
+-    path('password-change/', ChangePasswordApiView.as_view(), name='change-password'),
+-
++    path("password-change/", ChangePasswordApiView.as_view(), name="change-password"),
+     # reset password
+-
+     # login tocken
+-    path('token/login/', CustomObtainAuthToken.as_view(), name='token-login'),
+-
++    path("token/login/", CustomObtainAuthToken.as_view(), name="token-login"),
+     # logout
+-    path('token/logout/', CustomDiscardAuthToken.as_view(), name='token-logout'),
+-    
+-    # login JWT  
++    path("token/logout/", CustomDiscardAuthToken.as_view(), name="token-logout"),
++    # login JWT
+     # path('jwt/create/', TokenObtainPairView.as_view(), name='jwt-create'),
+-    path('jwt/refresh/', TokenRefreshView.as_view(), name='jwt-refresh'),
+-    path('jwt/verify/', TokenVerifyView.as_view(), name='jwt-verify'),
+-
+-    path('jwt/create/', CustomTokenObtainPairView.as_view(), name='jwt-create'),
++    path("jwt/refresh/", TokenRefreshView.as_view(), name="jwt-refresh"),
++    path("jwt/verify/", TokenVerifyView.as_view(), name="jwt-verify"),
++    path("jwt/create/", CustomTokenObtainPairView.as_view(), name="jwt-create"),
+ ]
+diff --git a/core/accounts/api/v1/urls/profile.py b/core/accounts/api/v1/urls/profile.py
+index 4d4c3e0..18dcdf8 100644
+--- a/core/accounts/api/v1/urls/profile.py
++++ b/core/accounts/api/v1/urls/profile.py
+@@ -1,8 +1,7 @@
+ from django.urls import include, path
+-from ..views import * 
++from ..views import *
+ 
+ urlpatterns = [
+     # profile user
+-    path('profile/', ProfileApiView.as_view(), name="profile")
+-
++    path("profile/", ProfileApiView.as_view(), name="profile")
+ ]
+diff --git a/core/accounts/api/v1/views.py b/core/accounts/api/v1/views.py
+index 124eb58..114044f 100644
+--- a/core/accounts/api/v1/views.py
++++ b/core/accounts/api/v1/views.py
+@@ -1,8 +1,5 @@
+ from rest_framework import generics
+ from rest_framework import status
+-from .serializers import (RegisterSerializer, CustomTokenObtainPairSerializers, CustomAuthTokenSerializer,
+-                          ChangePasswordSerializer, ProfileSerializer, ActivationResandSerializers)
+-
+ from rest_framework.response import Response
+ from rest_framework.authtoken.views import ObtainAuthToken
+ from rest_framework.authtoken.models import Token
+@@ -12,9 +9,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView
+ from django.contrib.auth import get_user_model
+ from accounts.models import Profile
+ from django.shortcuts import get_object_or_404
++
+ # from django.core.mail import send_mail
+ from mail_templated import send_mail
+-from ..utils import EmailThread
+ from mail_templated import EmailMessage
+ 
+ from rest_framework_simplejwt.tokens import RefreshToken
+@@ -23,186 +20,215 @@ import jwt
+ from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
+ from django.conf import settings
+ 
++from .serializers import (
++    RegisterSerializer,
++    CustomTokenObtainPairSerializers,
++    CustomAuthTokenSerializer,
++    ChangePasswordSerializer,
++    ProfileSerializer,
++    ActivationResandSerializers,
++)
++from ..utils import EmailThread
++
+ User = get_user_model()
+ 
++
+ class RegisterAPIView(generics.GenericAPIView):
+-      """
+-      API view for user registration.
+-      """
+-      serializer_class = RegisterSerializer
+-
+-      def post(self, request, *args, **kwargs):
+-            serializer = RegisterSerializer(data= request.data)
+-            if serializer.is_valid():
+-                  serializer.save()
+-                  email = serializer.validated_data['email']
+-                  data = {
+-                        'email': email
+-                  }
+-
+-                  user_object = get_object_or_404(User, email = email)
+-                  token = self.get_tokens_for_user(user_object)
+-      
+-                  email_object = EmailMessage('email/activation_email.tpl', {'token': token},
+-                                          'ziazia@gmail.com', to=[email])
+-                  EmailThread(email_object).start()
+-                  return Response(data, status=status.HTTP_201_CREATED)
+-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+-
+-      def get_tokens_for_user(self,user):
+-            if not user.is_active:
+-                  raise AuthenticationFailed("User is not active")
+-
+-            refresh = RefreshToken.for_user(user)
+-
+-            return str(refresh.access_token)
+-
+-      
++    """
++    API view for user registration.
++    """
++
++    serializer_class = RegisterSerializer
++
++    def post(self, request, *args, **kwargs):
++        serializer = RegisterSerializer(data=request.data)
++        if serializer.is_valid():
++            serializer.save()
++            email = serializer.validated_data["email"]
++            data = {"email": email}
++
++            user_object = get_object_or_404(User, email=email)
++            token = self.get_tokens_for_user(user_object)
++
++            email_object = EmailMessage(
++                "email/activation_email.tpl",
++                {"token": token},
++                "ziazia@gmail.com",
++                to=[email],
++            )
++            EmailThread(email_object).start()
++            return Response(data, status=status.HTTP_201_CREATED)
++        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
++
++    def get_tokens_for_user(self, user):
++        if not user.is_active:
++            raise AuthenticationFailed("User is not active")
++
++        refresh = RefreshToken.for_user(user)
++
++        return str(refresh.access_token)
++
++
+ class CustomObtainAuthToken(ObtainAuthToken):
+-      serializer_class = CustomAuthTokenSerializer
++    serializer_class = CustomAuthTokenSerializer
+ 
+-      def post(self, request, *args, **kwargs):
+-            serializer = self.serializer_class(data=request.data,
+-                                                context={'request': request})
+-            serializer.is_valid(raise_exception=True)
+-            user = serializer.validated_data['user']
+-            token, created = Token.objects.get_or_create(user=user)
+-            return Response({
+-                  'token': token.key,
+-                  'user_id': user.pk,
+-                  'email': user.email
+-            })
++    def post(self, request, *args, **kwargs):
++        serializer = self.serializer_class(
++            data=request.data, context={"request": request}
++        )
++        serializer.is_valid(raise_exception=True)
++        user = serializer.validated_data["user"]
++        token, created = Token.objects.get_or_create(user=user)
++        return Response({"token": token.key, "user_id": user.pk, "email": user.email})
+ 
+ 
+ class CustomDiscardAuthToken(APIView):
+-     '''This class for logout at the site'''
+-     permission_classes = [IsAuthenticated]
++    """This class for logout at the site"""
++
++    permission_classes = [IsAuthenticated]
++
++    def post(self, request):
++        request.user.auth_token.delete()
++        return Response(status=status.HTTP_204_NO_CONTENT)
+ 
+-     def post(self, request):
+-            request.user.auth_token.delete()
+-            return Response(status=status.HTTP_204_NO_CONTENT)
+ 
+ class CustomTokenObtainPairView(TokenObtainPairView):
+-     serializer_class = CustomTokenObtainPairSerializers
++    serializer_class = CustomTokenObtainPairSerializers
++
+ 
+ class ChangePasswordApiView(generics.GenericAPIView):
+-      """
+-      An endpoint for changing password.
+-      """
+-      serializer_class = ChangePasswordSerializer
+-      model = User
+-      permission_classes = (IsAuthenticated,)
+-
+-      def get_object(self, queryset=None):
+-            obj = self.request.user
+-            return obj
+-
+-      def put(self, request, *args, **kwargs):
+-            self.object = self.get_object()
+-            serializer = self.get_serializer(data=request.data)
+-
+-            if serializer.is_valid():
+-                  # Check old password
+-                  if not self.object.check_password(serializer.data.get("old_password")):
+-                        return Response(
+-                              {"old_password": ["Wrong password."]},
+-                              status=status.HTTP_400_BAD_REQUEST)
+-
+-                  # Set new password
+-                  self.object.set_password(serializer.data.get("new_password"))
+-                  self.object.save()
+-
+-                  return Response(
+-                        {'detail': 'password changed successfully'},
+-                        status=status.HTTP_200_OK)
+-
+-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+-           
++    """
++    An endpoint for changing password.
++    """
+ 
+-class ProfileApiView(generics.RetrieveUpdateAPIView):
+-      '''Retrieve and update user information'''
++    serializer_class = ChangePasswordSerializer
++    model = User
++    permission_classes = (IsAuthenticated,)
+ 
+-      permission_classes = [IsAuthenticated]
+-      serializer_class = ProfileSerializer
+-      queryset = Profile.objects.all()
++    def get_object(self, queryset=None):
++        obj = self.request.user
++        return obj
+ 
+-      def get_object(self):
+-            queryset = self.get_queryset()
+-            obj = get_object_or_404(queryset, user=self.request.user)
+-            return obj
++    def put(self, request, *args, **kwargs):
++        self.object = self.get_object()
++        serializer = self.get_serializer(data=request.data)
+ 
+-      # def get_queryset(self):
+-      #       return super().get_queryset()
++        if serializer.is_valid():
++            # Check old password
++            if not self.object.check_password(serializer.data.get("old_password")):
++                return Response(
++                    {"old_password": ["Wrong password."]},
++                    status=status.HTTP_400_BAD_REQUEST,
++                )
+ 
+-      # learn deffrents get_object and get_queryset
++            # Set new password
++            self.object.set_password(serializer.data.get("new_password"))
++            self.object.save()
+ 
+-class TestEmailSend(generics.GenericAPIView):
++            return Response(
++                {"detail": "password changed successfully"}, status=status.HTTP_200_OK
++            )
+ 
+-      def get(self, request, *args, **kwargs):
+-            self.email = "rezaziaei28@gmail.com"
++        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+ 
+-            # User.objects.get() it's equal with get_object_or_404()
+-            user_object = get_object_or_404(User, email= self.email)
+-            token = self.get_tokens_for_user(user_object)
+ 
+-            email_object = EmailMessage('email/hello.tpl', {'token': token},
+-                                    'ziazia@gmail.com', to=[self.email])
+-            EmailThread(email_object).start()
+-            return Response("email send")
++class ProfileApiView(generics.RetrieveUpdateAPIView):
++    """Retrieve and update user information"""
+ 
++    permission_classes = [IsAuthenticated]
++    serializer_class = ProfileSerializer
++    queryset = Profile.objects.all()
+ 
+-      def get_tokens_for_user(self,user):
+-            if not user.is_active:
+-                  raise AuthenticationFailed("User is not active")
++    def get_object(self):
++        queryset = self.get_queryset()
++        obj = get_object_or_404(queryset, user=self.request.user)
++        return obj
+ 
+-            refresh = RefreshToken.for_user(user)
++    # def get_queryset(self):
++    #       return super().get_queryset()
+ 
+-            return str(refresh.access_token)
++    # learn deffrents get_object and get_queryset
+ 
+-class ActivationApiViews(APIView):
+ 
+-      def get(self, request,token, *args, **kwargs):
+-            
+-            # first I just: decode -> id user
+-            try:
+-                  token = jwt.decode(token, settings.SECRET_KEY , algorithms=['HS256'])
+-                  user_id = token.get("user_id")
+-            except ExpiredSignatureError:
+-                  return Response({"details":"token has been expired"}, status=status.HTTP_400_BAD_REQUEST)
+-            except InvalidTokenError:
+-                  return Response({"details": "token is not valid"}, status=400)
+-            
+-            # object user 
+-            # user_object = User.objects.get(pk = user_id)
+-            user_object = get_object_or_404(User, pk=user_id)
+-            # is_verified -> True
+-            user_object.is_verified = True
+-            user_object.save()
+-
+-            return Response({'detaile': 'your accounts have been verified and activated seccussfully'})
++class TestEmailSend(generics.GenericAPIView):
+ 
+-class ActivationResandApiViews(generics.GenericAPIView):
+-      serializer_class = ActivationResandSerializers
++    def get(self, request, *args, **kwargs):
++        self.email = "rezaziaei28@gmail.com"
+ 
+-      def post(self, request, *args, **kwargs):
+-            serializers = self.serializer_class(data=request.data) 
+-            serializers.is_valid(raise_exception=True)
+-            user_object = serializers.validated_data['user'] 
+-            token = self.get_tokens_for_user(user_object)
++        # User.objects.get() it's equal with get_object_or_404()
++        user_object = get_object_or_404(User, email=self.email)
++        token = self.get_tokens_for_user(user_object)
+ 
+-            email_object = EmailMessage('email/activation_email.tpl', {'token': token},
+-                                    'ziazia@gmail.com', to=[user_object.email])
+-            EmailThread(email_object).start()
++        email_object = EmailMessage(
++            "email/hello.tpl", {"token": token}, "ziazia@gmail.com", to=[self.email]
++        )
++        EmailThread(email_object).start()
++        return Response("email send")
++
++    def get_tokens_for_user(self, user):
++        if not user.is_active:
++            raise AuthenticationFailed("User is not active")
++
++        refresh = RefreshToken.for_user(user)
+ 
+-            return Response({'detaile': 'your activation resand successfuly'}, status=status.HTTP_200_OK)
+-            # else:
+-            #       return Response({'detaile': 'request failed'}, status=status.HTTP_400_BAD_REQUEST)
++        return str(refresh.access_token)
+ 
+ 
+-      def get_tokens_for_user(self,user):
+-            if not user.is_active:
+-                  raise AuthenticationFailed("User is not active")
++class ActivationApiViews(APIView):
++
++    def get(self, request, token, *args, **kwargs):
+ 
+-            refresh = RefreshToken.for_user(user)
++        # first I just: decode -> id user
++        try:
++            token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
++            user_id = token.get("user_id")
++        except ExpiredSignatureError:
++            return Response(
++                {"details": "token has been expired"},
++                status=status.HTTP_400_BAD_REQUEST,
++            )
++        except InvalidTokenError:
++            return Response({"details": "token is not valid"}, status=400)
+ 
+-            return str(refresh.access_token)
+\ No newline at end of file
++        # object user
++        # user_object = User.objects.get(pk = user_id)
++        user_object = get_object_or_404(User, pk=user_id)
++        # is_verified -> True
++        user_object.is_verified = True
++        user_object.save()
++
++        return Response(
++            {"detaile": "your accounts have been verified and activated seccussfully"}
++        )
++
++
++class ActivationResandApiViews(generics.GenericAPIView):
++    serializer_class = ActivationResandSerializers
++
++    def post(self, request, *args, **kwargs):
++        serializers = self.serializer_class(data=request.data)
++        serializers.is_valid(raise_exception=True)
++        user_object = serializers.validated_data["user"]
++        token = self.get_tokens_for_user(user_object)
++
++        email_object = EmailMessage(
++            "email/activation_email.tpl",
++            {"token": token},
++            "ziazia@gmail.com",
++            to=[user_object.email],
++        )
++        EmailThread(email_object).start()
++
++        return Response(
++            {"detaile": "your activation resand successfuly"}, status=status.HTTP_200_OK
++        )
++        # else:
++        #       return Response({'detaile': 'request failed'}, status=status.HTTP_400_BAD_REQUEST)
++
++    def get_tokens_for_user(self, user):
++        if not user.is_active:
++            raise AuthenticationFailed("User is not active")
++
++        refresh = RefreshToken.for_user(user)
++
++        return str(refresh.access_token)
+diff --git a/core/accounts/apps.py b/core/accounts/apps.py
+index 3e3c765..0cb51e6 100644
+--- a/core/accounts/apps.py
++++ b/core/accounts/apps.py
+@@ -2,5 +2,5 @@ from django.apps import AppConfig
+ 
+ 
+ class AccountsConfig(AppConfig):
+-    default_auto_field = 'django.db.models.BigAutoField'
+-    name = 'accounts'
++    default_auto_field = "django.db.models.BigAutoField"
++    name = "accounts"
+diff --git a/core/accounts/migrations/0001_initial.py b/core/accounts/migrations/0001_initial.py
+index 8c2ab22..ea79f0f 100644
+--- a/core/accounts/migrations/0001_initial.py
++++ b/core/accounts/migrations/0001_initial.py
+@@ -8,28 +8,61 @@ class Migration(migrations.Migration):
+     initial = True
+ 
+     dependencies = [
+-        ('auth', '0012_alter_user_first_name_max_length'),
++        ("auth", "0012_alter_user_first_name_max_length"),
+     ]
+ 
+     operations = [
+         migrations.CreateModel(
+-            name='User',
++            name="User",
+             fields=[
+-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+-                ('password', models.CharField(max_length=128, verbose_name='password')),
+-                ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
+-                ('email', models.EmailField(max_length=255, unique=True)),
+-                ('is_superuser', models.BooleanField(default=False)),
+-                ('is_staff', models.BooleanField(default=False)),
+-                ('is_active', models.BooleanField(default=True)),
+-                ('created_date', models.DateTimeField(auto_now_add=True)),
+-                ('published_date', models.DateTimeField(null=True)),
+-                ('update_date', models.DateTimeField(auto_now=True)),
+-                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
+-                ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.permission', verbose_name='user permissions')),
++                (
++                    "id",
++                    models.BigAutoField(
++                        auto_created=True,
++                        primary_key=True,
++                        serialize=False,
++                        verbose_name="ID",
++                    ),
++                ),
++                ("password", models.CharField(max_length=128, verbose_name="password")),
++                (
++                    "last_login",
++                    models.DateTimeField(
++                        blank=True, null=True, verbose_name="last login"
++                    ),
++                ),
++                ("email", models.EmailField(max_length=255, unique=True)),
++                ("is_superuser", models.BooleanField(default=False)),
++                ("is_staff", models.BooleanField(default=False)),
++                ("is_active", models.BooleanField(default=True)),
++                ("created_date", models.DateTimeField(auto_now_add=True)),
++                ("published_date", models.DateTimeField(null=True)),
++                ("update_date", models.DateTimeField(auto_now=True)),
++                (
++                    "groups",
++                    models.ManyToManyField(
++                        blank=True,
++                        help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
++                        related_name="user_set",
++                        related_query_name="user",
++                        to="auth.group",
++                        verbose_name="groups",
++                    ),
++                ),
++                (
++                    "user_permissions",
++                    models.ManyToManyField(
++                        blank=True,
++                        help_text="Specific permissions for this user.",
++                        related_name="user_set",
++                        related_query_name="user",
++                        to="auth.permission",
++                        verbose_name="user permissions",
++                    ),
++                ),
+             ],
+             options={
+-                'abstract': False,
++                "abstract": False,
+             },
+         ),
+     ]
+diff --git a/core/accounts/migrations/0002_remove_user_published_date_profile.py b/core/accounts/migrations/0002_remove_user_published_date_profile.py
+index 64dd1bf..7b8cd6f 100644
+--- a/core/accounts/migrations/0002_remove_user_published_date_profile.py
++++ b/core/accounts/migrations/0002_remove_user_published_date_profile.py
+@@ -8,25 +8,39 @@ from django.db import migrations, models
+ class Migration(migrations.Migration):
+ 
+     dependencies = [
+-        ('accounts', '0001_initial'),
++        ("accounts", "0001_initial"),
+     ]
+ 
+     operations = [
+         migrations.RemoveField(
+-            model_name='user',
+-            name='published_date',
++            model_name="user",
++            name="published_date",
+         ),
+         migrations.CreateModel(
+-            name='Profile',
++            name="Profile",
+             fields=[
+-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+-                ('first_name', models.CharField(max_length=250)),
+-                ('last_name', models.CharField(max_length=250)),
+-                ('image', models.ImageField(blank=True, null=True, upload_to='')),
+-                ('description', models.TextField()),
+-                ('created_date', models.DateTimeField(auto_now_add=True)),
+-                ('update_date', models.DateTimeField(auto_now=True)),
+-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
++                (
++                    "id",
++                    models.BigAutoField(
++                        auto_created=True,
++                        primary_key=True,
++                        serialize=False,
++                        verbose_name="ID",
++                    ),
++                ),
++                ("first_name", models.CharField(max_length=250)),
++                ("last_name", models.CharField(max_length=250)),
++                ("image", models.ImageField(blank=True, null=True, upload_to="")),
++                ("description", models.TextField()),
++                ("created_date", models.DateTimeField(auto_now_add=True)),
++                ("update_date", models.DateTimeField(auto_now=True)),
++                (
++                    "user",
++                    models.ForeignKey(
++                        on_delete=django.db.models.deletion.CASCADE,
++                        to=settings.AUTH_USER_MODEL,
++                    ),
++                ),
+             ],
+         ),
+     ]
+diff --git a/core/accounts/migrations/0003_user_is_verified.py b/core/accounts/migrations/0003_user_is_verified.py
+index 3cb3764..dfc69d9 100644
+--- a/core/accounts/migrations/0003_user_is_verified.py
++++ b/core/accounts/migrations/0003_user_is_verified.py
+@@ -6,13 +6,13 @@ from django.db import migrations, models
+ class Migration(migrations.Migration):
+ 
+     dependencies = [
+-        ('accounts', '0002_remove_user_published_date_profile'),
++        ("accounts", "0002_remove_user_published_date_profile"),
+     ]
+ 
+     operations = [
+         migrations.AddField(
+-            model_name='user',
+-            name='is_verified',
++            model_name="user",
++            name="is_verified",
+             field=models.BooleanField(default=False),
+         ),
+     ]
+diff --git a/core/accounts/models/__init__.py b/core/accounts/models/__init__.py
+index f8069f5..b94c733 100644
+--- a/core/accounts/models/__init__.py
++++ b/core/accounts/models/__init__.py
+@@ -1,2 +1,2 @@
+ from .user import *
+-from .profile import *
+\ No newline at end of file
++from .profile import *
+diff --git a/core/accounts/models/profile.py b/core/accounts/models/profile.py
+index cd0988d..a7aac3d 100644
+--- a/core/accounts/models/profile.py
++++ b/core/accounts/models/profile.py
+@@ -3,6 +3,7 @@ from django.db.models.signals import post_save
+ from django.dispatch import receiver
+ from .user import User
+ 
++
+ class Profile(models.Model):
+     user = models.ForeignKey(User, on_delete=models.CASCADE)
+     first_name = models.CharField(max_length=250)
+@@ -19,5 +20,5 @@ class Profile(models.Model):
+ 
+ @receiver(post_save, sender=User)
+ def save_profile(sender, instance, created, **kwargs):
+-    if created: 
+-        Profile.objects.create(user=instance)  
+\ No newline at end of file
++    if created:
++        Profile.objects.create(user=instance)
+diff --git a/core/accounts/models/user.py b/core/accounts/models/user.py
+index 6129ee4..aa67b2d 100644
+--- a/core/accounts/models/user.py
++++ b/core/accounts/models/user.py
+@@ -1,61 +1,65 @@
+ from django.db import models
+-from django.contrib.auth.models import  BaseUserManager, AbstractBaseUser, PermissionsMixin
++from django.contrib.auth.models import (
++    BaseUserManager,
++    AbstractBaseUser,
++    PermissionsMixin,
++)
+ from django.utils.translation import gettext_lazy as _
+ 
++
+ # Create your models here.
+ class UserManager(BaseUserManager):
+-    '''
+-    Custom manager for the User model that uses email as the unique identifier 
++    """
++    Custom manager for the User model that uses email as the unique identifier
+     for authentication,replacing the default username field.
+-    '''
++    """
++
+     def create_user(self, email, password, **extra_fields):
+-        ''' 
++        """
+         Create and save user with the given email and password and extra_data
+-        '''
++        """
+         if not email:
+-            raise ValueError(_('The Email must be set'))
+-        email = self.normalize_email(email) 
++            raise ValueError(_("The Email must be set"))
++        email = self.normalize_email(email)
+         user = self.model(email=email, **extra_fields)
+         user.set_password(password)
+         user.save()
+         return user
+ 
+     def create_superuser(self, email, password, **extra_fields):
+-        ''' 
++        """
+         Create and save user with the given email and password and extra_data
+-        '''
+-        extra_fields.setdefault('is_staff', True)
+-        extra_fields.setdefault('is_superuser', True)
+-        extra_fields.setdefault('is_active', True)
+-        extra_fields.setdefault('is_verified', True)
+-
+-        
+-        if extra_fields.get('is_staff') is not True:
+-            raise ValueError(_('Superuser must have is_staff=True'))
+-        if extra_fields.get('is_superuser') is not True:
+-            raise ValueError(_('Superuser must have is_superuser=True'))
++        """
++        extra_fields.setdefault("is_staff", True)
++        extra_fields.setdefault("is_superuser", True)
++        extra_fields.setdefault("is_active", True)
++        extra_fields.setdefault("is_verified", True)
++
++        if extra_fields.get("is_staff") is not True:
++            raise ValueError(_("Superuser must have is_staff=True"))
++        if extra_fields.get("is_superuser") is not True:
++            raise ValueError(_("Superuser must have is_superuser=True"))
+         return self.create_user(email, password, **extra_fields)
+ 
+ 
+ class User(AbstractBaseUser, PermissionsMixin):
+-    '''
++    """
+     Coustom user model for our app
+-    '''
++    """
++
+     email = models.EmailField(max_length=255, unique=True)
+     is_superuser = models.BooleanField(default=False)
+     is_staff = models.BooleanField(default=False)
+     is_active = models.BooleanField(default=True)
+     is_verified = models.BooleanField(default=False)
+ 
+-    USERNAME_FIELD = 'email'
++    USERNAME_FIELD = "email"
+     REQUIRED_FIELDS = []
+ 
+     created_date = models.DateTimeField(auto_now_add=True)
+     update_date = models.DateTimeField(auto_now=True)
+ 
+     objects = UserManager()
++
+     def __str__(self):
+         return self.email
+-    
+-  
+- 
+\ No newline at end of file
+diff --git a/core/accounts/urls.py b/core/accounts/urls.py
+index 264a749..8198e7f 100644
+--- a/core/accounts/urls.py
++++ b/core/accounts/urls.py
+@@ -4,7 +4,6 @@ from .views import *
+ app_name = "accounts"
+ 
+ urlpatterns = [
+-      path("", include("django.contrib.auth.urls")),
+-      path('api/v1/', include('accounts.api.v1.urls')),
+-      
+-]
+\ No newline at end of file
++    path("", include("django.contrib.auth.urls")),
++    path("api/v1/", include("accounts.api.v1.urls")),
++]
+diff --git a/core/blog/admin.py b/core/blog/admin.py
+index 70380be..7e1e6ad 100644
+--- a/core/blog/admin.py
++++ b/core/blog/admin.py
+@@ -1,10 +1,11 @@
+ from django.contrib import admin
+-from blog.models import Post,Category
++from blog.models import Post, Category
++
+ 
+ # Register your models here.
+ class PostAdmin(admin.ModelAdmin):
+-    list_display = ['author', 'title', 'category', 'status', 'created_date']
+-    list_filter = ['author', 'category', 'status']
++    list_display = ["author", "title", "category", "status", "created_date"]
++    list_filter = ["author", "category", "status"]
+ 
+ 
+ admin.site.register(Category)
+diff --git a/core/blog/api/v1/pagination.py b/core/blog/api/v1/pagination.py
+index 7baef9f..5875fe2 100644
+--- a/core/blog/api/v1/pagination.py
++++ b/core/blog/api/v1/pagination.py
+@@ -1,19 +1,22 @@
+ from rest_framework.pagination import PageNumberPagination
+ from rest_framework.response import Response
+ 
++
+ class DefultPagination(PageNumberPagination):
+ 
+-      page_size = 3
+-#     page_size_query_param = 'page_size'
+-#     max_page_size = 100
++    page_size = 3
++    #     page_size_query_param = 'page_size'
++    #     max_page_size = 100
+ 
+-      def get_paginated_response(self, data):
+-            return Response({
+-                  'links': {
+-                  'next': self.get_next_link(),
+-                  'previous': self.get_previous_link()
+-                  },
+-                  'total_item': self.page.paginator.count,
+-                  'total_page': self.page.paginator.num_pages,
+-                  'results': data
+-            })
+\ No newline at end of file
++    def get_paginated_response(self, data):
++        return Response(
++            {
++                "links": {
++                    "next": self.get_next_link(),
++                    "previous": self.get_previous_link(),
++                },
++                "total_item": self.page.paginator.count,
++                "total_page": self.page.paginator.num_pages,
++                "results": data,
++            }
++        )
+diff --git a/core/blog/api/v1/permissions.py b/core/blog/api/v1/permissions.py
+index c309499..5141fd5 100644
+--- a/core/blog/api/v1/permissions.py
++++ b/core/blog/api/v1/permissions.py
+@@ -1,5 +1,6 @@
+ from rest_framework import permissions
+ 
++
+ class IsOwnerOrReadOnly(permissions.BasePermission):
+     """
+     Object-level permission to only allow owners of an object to edit it.
+@@ -13,4 +14,4 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
+             return True
+ 
+         # Instance must have an attribute named `owner`.
+-        return obj.author.user == request.user
+\ No newline at end of file
++        return obj.author.user == request.user
+diff --git a/core/blog/api/v1/serializers.py b/core/blog/api/v1/serializers.py
+index 67683e3..ca3c916 100644
+--- a/core/blog/api/v1/serializers.py
++++ b/core/blog/api/v1/serializers.py
+@@ -1,54 +1,72 @@
+ from rest_framework import serializers
+-from blog.models import Post,Category
++from blog.models import Post, Category
+ from accounts.models import Profile, User
+ 
++
+ # class PostSerializers(serializers.Serializer):
+ #       id = serializers.IntegerField()
+ #       title = serializers.CharField(max_length=255)
+ class CategorySerializers(serializers.ModelSerializer):
+ 
+-      class Meta:
+-            model = Category
+-            fields = ['id', 'name']
++    class Meta:
++        model = Category
++        fields = ["id", "name"]
++
+ 
+ class PostSerializers(serializers.ModelSerializer):
+ 
+-      snippet = serializers.ReadOnlyField(source='get_snippet')
+-      relative_url = serializers.URLField(source='get_absolute_api_url', read_only=True)
+-      absolute_url = serializers.SerializerMethodField()
+-
+-      # category = CategorySerializers()
+-      # category = serializers.SlugRelatedField(many=False,slug_field='name', queryset=Category.objects.all())
+-
+-      # this for adding read only fields
+-      # author = serializers.ReadOnlyField() this is equal bottom author
+-      # author = serializers.CharField(read_only=True)
+-
+-      class Meta:
+-            model = Post
+-            fields = ['id', 'author', 'image','relative_url', 'absolute_url',
+-                      'snippet', 'title', 'category','content', 'status', 'created_date', 'published_date']
+-            read_only_fields = ['author',]
+-
+-      def get_absolute_url(self, object):
+-            request = self.context.get('request')
+-            return request.build_absolute_uri(object.pk)
+-
+-      def to_representation(self, instance):
+-            request = self.context.get('request')
+-            rep = super().to_representation(instance)
+-            rep['state'] = 'list'
+-            # print(request.__dict__)
+-            if request.parser_context.get('kwargs').get('pk'):
+-                  rep.pop('snippet', None)
+-                  rep.pop('relative_url', None)
+-                  rep.pop('absolute_url', None)
+-            else:
+-                  rep.pop('content', None)                
+-            rep['category'] = CategorySerializers(instance.category).data
+-            return rep
+-
+-      def create(self, validated_data):
+-            """Attach the current user's profile as the author."""
+-            validated_data['author'] = Profile.objects.get(user__id = self.context.get('request').user.id)
+-            return super().create(validated_data)
++    snippet = serializers.ReadOnlyField(source="get_snippet")
++    relative_url = serializers.URLField(source="get_absolute_api_url", read_only=True)
++    absolute_url = serializers.SerializerMethodField()
++
++    # category = CategorySerializers()
++    # category = serializers.SlugRelatedField(many=False,slug_field='name', queryset=Category.objects.all())
++
++    # this for adding read only fields
++    # author = serializers.ReadOnlyField() this is equal bottom author
++    # author = serializers.CharField(read_only=True)
++
++    class Meta:
++        model = Post
++        fields = [
++            "id",
++            "author",
++            "image",
++            "relative_url",
++            "absolute_url",
++            "snippet",
++            "title",
++            "category",
++            "content",
++            "status",
++            "created_date",
++            "published_date",
++        ]
++        read_only_fields = [
++            "author",
++        ]
++
++    def get_absolute_url(self, object):
++        request = self.context.get("request")
++        return request.build_absolute_uri(object.pk)
++
++    def to_representation(self, instance):
++        request = self.context.get("request")
++        rep = super().to_representation(instance)
++        rep["state"] = "list"
++        # print(request.__dict__)
++        if request.parser_context.get("kwargs").get("pk"):
++            rep.pop("snippet", None)
++            rep.pop("relative_url", None)
++            rep.pop("absolute_url", None)
++        else:
++            rep.pop("content", None)
++        rep["category"] = CategorySerializers(instance.category).data
++        return rep
++
++    def create(self, validated_data):
++        """Attach the current user's profile as the author."""
++        validated_data["author"] = Profile.objects.get(
++            user__id=self.context.get("request").user.id
++        )
++        return super().create(validated_data)
+diff --git a/core/blog/api/v1/urls.py b/core/blog/api/v1/urls.py
+index aefb663..d9220cb 100644
+--- a/core/blog/api/v1/urls.py
++++ b/core/blog/api/v1/urls.py
+@@ -2,23 +2,23 @@ from django.urls import path
+ from rest_framework.routers import DefaultRouter
+ from .views import PostModelViewSet, CategoryModelViewSet
+ 
+-app_name = 'api_v1'
++app_name = "api_v1"
+ 
+ router = DefaultRouter()
+ # This roter is about post
+-router.register('post', PostModelViewSet, basename='post')
++router.register("post", PostModelViewSet, basename="post")
+ 
+ # This roter is about category
+-router.register('category', CategoryModelViewSet, basename='category')
++router.register("category", CategoryModelViewSet, basename="category")
+ 
+ urlpatterns = router.urls
+ 
+ # urlpatterns = [
+-#     # This path is about function base view 
++#     # This path is about function base view
+ #     # path("post/", post_list, name="post-list"),
+ #     # path("post/<int:id>/", post_detail, name="post-detail")
+ 
+-#     # This path is about class base view PostList and PostDetail 
++#     # This path is about class base view PostList and PostDetail
+ #     # path("post/", PostList.as_view(), name="post-list"),
+ #     # path("post/<int:id>/", PostDetail.as_view(), name="post-detail")
+ 
+@@ -26,4 +26,4 @@ urlpatterns = router.urls
+ #     path('post/', PostViewSet.as_view({'get':'list','post':'create'}), name='post-list'),
+ #     path('post/<int:id>/', PostViewSet.as_view({'get':'retrieve','put':'update','delete':'destroy', 'patch':'partial_update'}), name='post-retrieve'),
+ 
+-# ]
+\ No newline at end of file
++# ]
+diff --git a/core/blog/api/v1/views.py b/core/blog/api/v1/views.py
+index 028dd2d..014f107 100644
+--- a/core/blog/api/v1/views.py
++++ b/core/blog/api/v1/views.py
+@@ -1,18 +1,20 @@
+ from rest_framework.decorators import api_view, permission_classes
+-from rest_framework.permissions import IsAuthenticated ,IsAuthenticatedOrReadOnly
++from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+ from rest_framework.response import Response
+-from .serializers import PostSerializers, CategorySerializers
+-from ...models import Post, Category 
+ from rest_framework import status
+ from django.shortcuts import get_object_or_404
+ from rest_framework.views import APIView
+-from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
++from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+ from rest_framework import viewsets
+ from rest_framework.decorators import action
+-from .permissions import IsOwnerOrReadOnly
+ from django_filters.rest_framework import DjangoFilterBackend
+ from rest_framework.filters import SearchFilter, OrderingFilter
++
++from ...models import Post, Category
++from .serializers import PostSerializers, CategorySerializers
++from .permissions import IsOwnerOrReadOnly
+ from .pagination import DefultPagination
++
+ # Create your views here.
+ 
+ """ This is function base view for show post and create ....
+@@ -63,7 +65,7 @@ def post_detail(request,id):
+       #       return Response(serializer.data)
+       # except Post.DoesNotExist:
+       #       return Response({"detail":"Post is not exist"}, status=status.HTTP_404_NOT_FOUND)
+-"""    
++"""
+ 
+ """ This is class base that use APIView
+ class PostList(APIView):
+@@ -117,7 +119,7 @@ class PostDetail(APIView):
+             post.delete()
+             return Response({"detail":"item removed successfully"}, status=status.HTTP_204_NO_CONTENT)
+                         
+-"""   
++"""
+ 
+ """# This is class base view that use generics (ListCreateAPIView,RetrieveUpdateDestroyAPIView)
+ class PostList(ListCreateAPIView):
+@@ -183,32 +185,36 @@ class PostViewSet(viewsets.ViewSet):
+             post = get_object_or_404(Post, pk=id, status=True)
+             post.delete()
+             return Response({"detail":"item removed successfully"}, status=status.HTTP_204_NO_CONTENT)
+-"""   
+-
+-class PostModelViewSet(viewsets.ModelViewSet):
+-      queryset = Post.objects.filter(status=True)
+-      permission_classes = [IsAuthenticated,IsOwnerOrReadOnly]  
+-      serializer_class = PostSerializers 
+-
+-      # filter backend
+-      filter_backends = [DjangoFilterBackend, SearchFilter,OrderingFilter]
+-      filterset_fields = {'category':['exact','in'], 'author':['exact','in'], 'status':['exact','in']}
+-      # we can use regexes for it for example
+-      # serch_fields = ['=title']  we must serch precise title for show post
+-      # else does not show post
+-      search_fields = ['title', 'content']
+-      ordering_fields = ['published_date']
+-
+-      # this for pagination post
+-      pagination_class = DefultPagination
++"""
+ 
+ 
++class PostModelViewSet(viewsets.ModelViewSet):
++    queryset = Post.objects.filter(status=True)
++    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
++    serializer_class = PostSerializers
++
++    # filter backend
++    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
++    filterset_fields = {
++        "category": ["exact", "in"],
++        "author": ["exact", "in"],
++        "status": ["exact", "in"],
++    }
++    # we can use regexes for it for example
++    # serch_fields = ['=title']  we must serch precise title for show post
++    # else does not show post
++    search_fields = ["title", "content"]
++    ordering_fields = ["published_date"]
++
++    # this for pagination post
++    pagination_class = DefultPagination
++
++    @action(methods=["get"], detail=False)
++    def get_is_ok(self, request):
++        return Response({"detail": "Is ok"})
+ 
+-      @action(methods=['get'],detail=False)
+-      def get_is_ok(self,request):
+-            return Response({'detail':'Is ok'})
+ 
+ class CategoryModelViewSet(viewsets.ModelViewSet):
+-      permission_classes = [IsAuthenticatedOrReadOnly]  
+-      serializer_class = CategorySerializers 
+-      queryset = Category.objects.all()
+\ No newline at end of file
++    permission_classes = [IsAuthenticatedOrReadOnly]
++    serializer_class = CategorySerializers
++    queryset = Category.objects.all()
+diff --git a/core/blog/apps.py b/core/blog/apps.py
+index 94788a5..6be26c7 100644
+--- a/core/blog/apps.py
++++ b/core/blog/apps.py
+@@ -2,5 +2,5 @@ from django.apps import AppConfig
+ 
+ 
+ class BlogConfig(AppConfig):
+-    default_auto_field = 'django.db.models.BigAutoField'
+-    name = 'blog'
++    default_auto_field = "django.db.models.BigAutoField"
++    name = "blog"
+diff --git a/core/blog/forms.py b/core/blog/forms.py
+index 19bbd4e..2a0d7cb 100644
+--- a/core/blog/forms.py
++++ b/core/blog/forms.py
+@@ -1,10 +1,9 @@
+ from django import forms
+ from blog.models import Post
+ 
+-class PostForm(forms.ModelForm):
+ 
+-      class Meta:
+-            model = Post
+-            fields = ['title', 'content', 
+-                      'category', 'status', 'published_date']
++class PostForm(forms.ModelForm):
+ 
++    class Meta:
++        model = Post
++        fields = ["title", "content", "category", "status", "published_date"]
+diff --git a/core/blog/migrations/0001_initial.py b/core/blog/migrations/0001_initial.py
+index 8167a64..8e14c19 100644
+--- a/core/blog/migrations/0001_initial.py
++++ b/core/blog/migrations/0001_initial.py
+@@ -15,25 +15,55 @@ class Migration(migrations.Migration):
+ 
+     operations = [
+         migrations.CreateModel(
+-            name='Category',
++            name="Category",
+             fields=[
+-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+-                ('name', models.CharField(max_length=255)),
++                (
++                    "id",
++                    models.BigAutoField(
++                        auto_created=True,
++                        primary_key=True,
++                        serialize=False,
++                        verbose_name="ID",
++                    ),
++                ),
++                ("name", models.CharField(max_length=255)),
+             ],
+         ),
+         migrations.CreateModel(
+-            name='Post',
++            name="Post",
+             fields=[
+-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+-                ('image', models.ImageField(blank=True, null=True, upload_to='')),
+-                ('title', models.CharField(max_length=255)),
+-                ('content', models.TextField()),
+-                ('status', models.BooleanField(default=False)),
+-                ('created_date', models.DateTimeField(auto_now_add=True)),
+-                ('published_date', models.DateTimeField(null=True)),
+-                ('update_date', models.DateTimeField(auto_now=True)),
+-                ('author', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+-                ('category', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='blog.category')),
++                (
++                    "id",
++                    models.BigAutoField(
++                        auto_created=True,
++                        primary_key=True,
++                        serialize=False,
++                        verbose_name="ID",
++                    ),
++                ),
++                ("image", models.ImageField(blank=True, null=True, upload_to="")),
++                ("title", models.CharField(max_length=255)),
++                ("content", models.TextField()),
++                ("status", models.BooleanField(default=False)),
++                ("created_date", models.DateTimeField(auto_now_add=True)),
++                ("published_date", models.DateTimeField(null=True)),
++                ("update_date", models.DateTimeField(auto_now=True)),
++                (
++                    "author",
++                    models.ForeignKey(
++                        null=True,
++                        on_delete=django.db.models.deletion.SET_NULL,
++                        to=settings.AUTH_USER_MODEL,
++                    ),
++                ),
++                (
++                    "category",
++                    models.ForeignKey(
++                        null=True,
++                        on_delete=django.db.models.deletion.SET_NULL,
++                        to="blog.category",
++                    ),
++                ),
+             ],
+         ),
+     ]
+diff --git a/core/blog/migrations/0002_alter_post_author.py b/core/blog/migrations/0002_alter_post_author.py
+index 9394524..857236b 100644
+--- a/core/blog/migrations/0002_alter_post_author.py
++++ b/core/blog/migrations/0002_alter_post_author.py
+@@ -7,14 +7,18 @@ from django.db import migrations, models
+ class Migration(migrations.Migration):
+ 
+     dependencies = [
+-        ('accounts', '0002_remove_user_published_date_profile'),
+-        ('blog', '0001_initial'),
++        ("accounts", "0002_remove_user_published_date_profile"),
++        ("blog", "0001_initial"),
+     ]
+ 
+     operations = [
+         migrations.AlterField(
+-            model_name='post',
+-            name='author',
+-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='accounts.profile'),
++            model_name="post",
++            name="author",
++            field=models.ForeignKey(
++                null=True,
++                on_delete=django.db.models.deletion.SET_NULL,
++                to="accounts.profile",
++            ),
+         ),
+     ]
+diff --git a/core/blog/migrations/0003_alter_post_author.py b/core/blog/migrations/0003_alter_post_author.py
+index 38ce132..979b1f7 100644
+--- a/core/blog/migrations/0003_alter_post_author.py
++++ b/core/blog/migrations/0003_alter_post_author.py
+@@ -8,14 +8,18 @@ from django.db import migrations, models
+ class Migration(migrations.Migration):
+ 
+     dependencies = [
+-        ('blog', '0002_alter_post_author'),
++        ("blog", "0002_alter_post_author"),
+         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+     ]
+ 
+     operations = [
+         migrations.AlterField(
+-            model_name='post',
+-            name='author',
+-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL),
++            model_name="post",
++            name="author",
++            field=models.ForeignKey(
++                null=True,
++                on_delete=django.db.models.deletion.SET_NULL,
++                to=settings.AUTH_USER_MODEL,
++            ),
+         ),
+     ]
+diff --git a/core/blog/migrations/0004_alter_post_author.py b/core/blog/migrations/0004_alter_post_author.py
+index 6076f91..8a8dde2 100644
+--- a/core/blog/migrations/0004_alter_post_author.py
++++ b/core/blog/migrations/0004_alter_post_author.py
+@@ -7,14 +7,18 @@ from django.db import migrations, models
+ class Migration(migrations.Migration):
+ 
+     dependencies = [
+-        ('accounts', '0002_remove_user_published_date_profile'),
+-        ('blog', '0003_alter_post_author'),
++        ("accounts", "0002_remove_user_published_date_profile"),
++        ("blog", "0003_alter_post_author"),
+     ]
+ 
+     operations = [
+         migrations.AlterField(
+-            model_name='post',
+-            name='author',
+-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='accounts.profile'),
++            model_name="post",
++            name="author",
++            field=models.ForeignKey(
++                null=True,
++                on_delete=django.db.models.deletion.SET_NULL,
++                to="accounts.profile",
++            ),
+         ),
+     ]
+diff --git a/core/blog/models.py b/core/blog/models.py
+index e3b1e1f..6647e46 100644
+--- a/core/blog/models.py
++++ b/core/blog/models.py
+@@ -7,17 +7,19 @@ from django.urls import reverse
+ # Getting user model objects
+ User = get_user_model()
+ 
++
+ class Post(models.Model):
+-    '''
++    """
+     This is a class to define posts for blog app
+-    '''
++    """
++
+     author = models.ForeignKey("accounts.Profile", on_delete=models.SET_NULL, null=True)
+-    image = models.ImageField(null=True,blank=True)
++    image = models.ImageField(null=True, blank=True)
+     title = models.CharField(max_length=255)
+     content = models.TextField()
+-    category = models.ForeignKey('Category',on_delete=models.SET_NULL, null=True)
++    category = models.ForeignKey("Category", on_delete=models.SET_NULL, null=True)
+     status = models.BooleanField(default=False)
+-    
++
+     created_date = models.DateTimeField(auto_now_add=True)
+     published_date = models.DateTimeField(null=True)
+     update_date = models.DateTimeField(auto_now=True)
+@@ -30,10 +32,10 @@ class Post(models.Model):
+ 
+     def get_absolute_api_url(self):
+         return reverse("blog:api_v1:post-detail", kwargs={"pk": self.pk})
+-    
+-    
++
++
+ class Category(models.Model):
+     name = models.CharField(max_length=255)
+ 
+     def __str__(self):
+-        return self.name
+\ No newline at end of file
++        return self.name
+diff --git a/core/blog/urls.py b/core/blog/urls.py
+index 5a7fc84..eb3eb1f 100644
+--- a/core/blog/urls.py
++++ b/core/blog/urls.py
+@@ -2,16 +2,16 @@ from django.urls import path, include
+ from blog.views import *
+ from django.views.generic.base import RedirectView
+ 
+-app_name = 'blog'
++app_name = "blog"
+ 
+ urlpatterns = [
+-#     path("", IndexView.as_view(),name='index'),
+-#     path("go_to_jadi_dot_net/<int:pk>", RedirectToJadiDotNet.as_view(), name="go_to_jadi_dot_net"),
++    #     path("", IndexView.as_view(),name='index'),
++    #     path("go_to_jadi_dot_net/<int:pk>", RedirectToJadiDotNet.as_view(), name="go_to_jadi_dot_net"),
+     path("post/", PostListView.as_view(), name="post-list"),
+-    path("post/<int:pk>/", PostDetailView.as_view(), name='post-detail'),
+-    path("post/create/", PostCreateView.as_view(), name='post-create'),
+-    path('post/<int:pk>/edit/', PostEditView.as_view(), name='post-edit'),
+-    path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
+-#     path("post/", api_post_list,name='api_post_list'),
+-    path('api/v1/', include('blog.api.v1.urls')),
+-]
+\ No newline at end of file
++    path("post/<int:pk>/", PostDetailView.as_view(), name="post-detail"),
++    path("post/create/", PostCreateView.as_view(), name="post-create"),
++    path("post/<int:pk>/edit/", PostEditView.as_view(), name="post-edit"),
++    path("post/<int:pk>/delete/", PostDeleteView.as_view(), name="post-delete"),
++    #     path("post/", api_post_list,name='api_post_list'),
++    path("api/v1/", include("blog.api.v1.urls")),
++]
+diff --git a/core/blog/views.py b/core/blog/views.py
+index 6ce8a6b..1d997fd 100644
+--- a/core/blog/views.py
++++ b/core/blog/views.py
+@@ -1,6 +1,13 @@
+ from django.shortcuts import render, get_object_or_404
+ from django.views.generic.base import TemplateView, RedirectView
+-from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
++from django.views.generic import (
++    ListView,
++    DetailView,
++    FormView,
++    CreateView,
++    UpdateView,
++    DeleteView,
++)
+ from django.contrib.auth.mixins import LoginRequiredMixin
+ from django.http import HttpResponse
+ 
+@@ -23,17 +30,19 @@ def function_name(request):
+     return render(request,'name_page.html',context)
+ """
+ 
++
+ class IndexView(TemplateView):
+-    '''
++    """
+     a class base view for show index page
+-    '''
++    """
++
+     template_name = "blog/post_list.html"
+ 
+     def get_context_data(self, **kwargs):
+         context = super().get_context_data(**kwargs)
+         context["posts"] = Post.objects.all()
+         return context
+-    
++
+ 
+ """ FBV for Redirect
+ from django.shortcuts import redirect
+@@ -46,42 +55,44 @@ def redirect_to_google(request):
+ 
+ 
+ class RedirectToJadiDotNet(RedirectView):
+-    '''
++    """
+     Redirect view simple for google
+-    '''
+-    
+-    url = 'https://jadi.net/'
++    """
++
++    url = "https://jadi.net/"
+ 
+     def get_redirect_url(self, *args, **kwargs):
+-        post = get_object_or_404(Post, pk=kwargs['pk'])
++        post = get_object_or_404(Post, pk=kwargs["pk"])
+         return super().get_redirect_url(*args, **kwargs)
+ 
+ 
+ class PostListView(LoginRequiredMixin, ListView):
+-    '''
++    """
+     This class show all post on page
+-    '''
++    """
+ 
+-    # model = Post This is two solition for getting Post form models 
++    # model = Post This is two solition for getting Post form models
+     # queryset = Post.objects.all()
+ 
+-    context_object_name = 'posts'
+-    paginate_by = 1 # for next page url/?page=2
++    context_object_name = "posts"
++    paginate_by = 1  # for next page url/?page=2
+ 
+     def get_queryset(self):
+         posts = Post.objects.filter(status=1)
+         return posts
+ 
+-class PostDetailView(LoginRequiredMixin, DetailView):
+ 
+-    '''
++class PostDetailView(LoginRequiredMixin, DetailView):
++    """
+     This class show a post on page
+-    '''
++    """
++
+     model = Post
+ 
+     def get_context_data(self, **kwargs):
+         return super().get_context_data(**kwargs)
+ 
++
+ """ Learn FormView
+ class PostCreateView(FormView):
+     '''
+@@ -98,37 +109,39 @@ class PostCreateView(FormView):
+ 
+ 
+ class PostCreateView(LoginRequiredMixin, CreateView):
+-    '''
+-    This class is create a new post with (CreateView) 
+-    '''
++    """
++    This class is create a new post with (CreateView)
++    """
+ 
+     model = Post
+     # fields = ['author', 'title', 'content', 'category', 'status', 'published_date']
+     form_class = PostForm
+-    success_url = '/blog/post/'
++    success_url = "/blog/post/"
+ 
+     def form_valid(self, form):
+-        form.instance.author = self.request.user 
++        form.instance.author = self.request.user
+         return super().form_valid(form)
+-    
++
+ 
+ class PostEditView(LoginRequiredMixin, UpdateView):
+-    '''
+-    This class is for edit a post 
+-    '''    
++    """
++    This class is for edit a post
++    """
+ 
+     model = Post
+     form_class = PostForm
+-    success_url = '/blog/post/'
+-    
++    success_url = "/blog/post/"
++
++
+ class PostDeleteView(LoginRequiredMixin, DeleteView):
+-    '''
+-    This class is for delete post 
+-    '''
++    """
++    This class is for delete post
++    """
+ 
+     model = Post
+-    success_url = '/blog/post/'
++    success_url = "/blog/post/"
++
+ 
+ @api_view()
+ def api_post_list(request):
+-    return Response({'name': 'ali', 'age': 19})
++    return Response({"name": "ali", "age": 19})
+diff --git a/core/core/settings.py b/core/core/settings.py
+index 3ed2441..332fd64 100644
+--- a/core/core/settings.py
++++ b/core/core/settings.py
+@@ -25,9 +25,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
+ SECRET_KEY = config("SECRET_KEY")
+ 
+ # SECURITY WARNING: don't run with debug turned on in production!
+-DEBUG = config("DEBUG",cast=bool)
++DEBUG = config("DEBUG", cast=bool)
+ 
+-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=lambda v: [s.strip() for s in v.split(',')],default='*')
++ALLOWED_HOSTS = config(
++    "ALLOWED_HOSTS", cast=lambda v: [s.strip() for s in v.split(",")], default="*"
++)
+ 
+ # Application definition
+ 
+@@ -38,27 +40,20 @@ INSTALLED_APPS = [
+     "django.contrib.sessions",
+     "django.contrib.messages",
+     "django.contrib.staticfiles",
+-
+     # Django apps
+     "accounts.apps.AccountsConfig",
+     "blog.apps.BlogConfig",
+-
+     # Django REST Framework
+-    "rest_framework", 
+-
+-    # Django filters 
+-    'django_filters', 
+-
++    "rest_framework",
++    # Django filters
++    "django_filters",
+     # Django Token Authentication
+-    'rest_framework.authtoken',
+-
++    "rest_framework.authtoken",
+     # Django JWT
+-     'rest_framework_simplejwt',
+-
+-    'drf_yasg',
+-
++    "rest_framework_simplejwt",
++    "drf_yasg",
+     # send email
+-    'mail_templated',
++    "mail_templated",
+ ]
+ 
+ MIDDLEWARE = [
+@@ -76,7 +71,7 @@ ROOT_URLCONF = "core.urls"
+ TEMPLATES = [
+     {
+         "BACKEND": "django.template.backends.django.DjangoTemplates",
+-        "DIRS": [BASE_DIR / 'templates'],
++        "DIRS": [BASE_DIR / "templates"],
+         "APP_DIRS": True,
+         "OPTIONS": {
+             "context_processors": [
+@@ -136,16 +131,14 @@ USE_TZ = True
+ # Static files (CSS, JavaScript, Images)
+ # https://docs.djangoproject.com/en/5.2/howto/static-files/
+ 
+-STATIC_URL = '/static/'
+-STATIC_ROOT = BASE_DIR / 'static'
++STATIC_URL = "/static/"
++STATIC_ROOT = BASE_DIR / "static"
+ 
+-MEDIA_URL = '/media/'
+-MEDIA_ROOT = BASE_DIR / 'media'
++MEDIA_URL = "/media/"
++MEDIA_ROOT = BASE_DIR / "media"
+ 
+ 
+-STATICFILES_DIRS = [
+-    BASE_DIR / 'staticfile'
+-]
++STATICFILES_DIRS = [BASE_DIR / "staticfile"]
+ 
+ 
+ # Default primary key field type
+@@ -153,7 +146,7 @@ STATICFILES_DIRS = [
+ 
+ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+ 
+-# user manager config 
++# user manager config
+ AUTH_USER_MODEL = "accounts.User"
+ 
+ # rest framework settings
+@@ -161,22 +154,21 @@ REST_FRAMEWORK = {
+     # "DEFAULT_PERMISSION_CLASSES": [
+     #     "rest_framework.permissions.IsAuthenticated",
+     # ]
+-
+-    'DEFAULT_AUTHENTICATION_CLASSES': [
++    "DEFAULT_AUTHENTICATION_CLASSES": [
+         # 'rest_framework.authentication.BasicAuthentication',
+-        'rest_framework.authentication.SessionAuthentication',
+-        'rest_framework.authentication.TokenAuthentication',
+-        'rest_framework_simplejwt.authentication.JWTAuthentication',
++        "rest_framework.authentication.SessionAuthentication",
++        "rest_framework.authentication.TokenAuthentication",
++        "rest_framework_simplejwt.authentication.JWTAuthentication",
+     ]
+ }
+ 
+ # email configouration
+ # EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
++EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+ EMAIL_USE_TLS = False
+-EMAIL_HOST = 'smtp4dev'
+-EMAIL_HOST_USER = ''
+-EMAIL_HOST_PASSWORD = ''
++EMAIL_HOST = "smtp4dev"
++EMAIL_HOST_USER = ""
++EMAIL_HOST_PASSWORD = ""
+ EMAIL_PORT = 25
+ 
+ SIMPLE_JWT = {
+diff --git a/core/core/urls.py b/core/core/urls.py
+index 8f1f89a..c69bbb0 100644
+--- a/core/core/urls.py
++++ b/core/core/urls.py
+@@ -14,39 +14,47 @@ Including another URLconf
+     1. Import the include() function: from django.urls import include, path
+     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+ """
++
+ from django.contrib import admin
+ from django.urls import path, include, re_path
+ from django.conf import settings
+ from django.conf.urls.static import static
+-from rest_framework.schemas import get_schema_view 
++from rest_framework.schemas import get_schema_view
+ 
+ from rest_framework import permissions
+ from drf_yasg.views import get_schema_view
+ from drf_yasg import openapi
+ 
+ schema_view = get_schema_view(
+-   openapi.Info(
+-      title="blog API",
+-      default_version='v1',
+-      description="This is test api for reza ziaei project",
+-      terms_of_service="https://www.google.com/policies/terms/",
+-      contact=openapi.Contact(email="rezaziaei28@gmail.com"),
+-      license=openapi.License(name="MIT License"),
+-   ),
+-   public=True,
+-   permission_classes=(permissions.AllowAny,),
++    openapi.Info(
++        title="blog API",
++        default_version="v1",
++        description="This is test api for reza ziaei project",
++        terms_of_service="https://www.google.com/policies/terms/",
++        contact=openapi.Contact(email="rezaziaei28@gmail.com"),
++        license=openapi.License(name="MIT License"),
++    ),
++    public=True,
++    permission_classes=(permissions.AllowAny,),
+ )
+ 
+ urlpatterns = [
+     path("admin/", admin.site.urls),
+-    path("blog/", include('blog.urls')),
++    path("blog/", include("blog.urls")),
+     path("accounts/", include("accounts.urls")),
+     path("api-auth/", include("rest_framework.urls")),
+     # path("api-docs", get_schema_view(title="api simple")),
+-
+-    path('swagger/output.json', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
++    path(
++        "swagger/output.json",
++        schema_view.without_ui(cache_timeout=0),
++        name="schema-json",
++    ),
++    path(
++        "swagger/",
++        schema_view.with_ui("swagger", cache_timeout=0),
++        name="schema-swagger-ui",
++    ),
++    path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
+ ]
+ 
+ # serving static and media for development
+diff --git a/core/manage.py b/core/manage.py
+index 4e20ce5..ccea163 100755
+--- a/core/manage.py
++++ b/core/manage.py
+@@ -1,5 +1,6 @@
+ #!/usr/bin/env python
+ """Django's command-line utility for administrative tasks."""
++
+ import os
+ import sys
+ 
+diff --git a/requirements.txt b/requirements.txt
+index 90e9f32..ea791b9 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -19,4 +19,7 @@ drf-yasg[validation]
+ 
+ # Email third party_modules
+ django-mail-templated
+-pyjwt[crypto]==2.14.0
+\ No newline at end of file
++pyjwt[crypto]==2.14.0
++
++# refactoring and tests
++black
+\ No newline at end of file

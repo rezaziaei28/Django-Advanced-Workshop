@@ -25,9 +25,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config("DEBUG",cast=bool)
+DEBUG = config("DEBUG", cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=lambda v: [s.strip() for s in v.split(',')],default='*')
+ALLOWED_HOSTS = config(
+    "ALLOWED_HOSTS", cast=lambda v: [s.strip() for s in v.split(",")], default="*"
+)
 
 # Application definition
 
@@ -38,27 +40,20 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     # Django apps
     "accounts.apps.AccountsConfig",
     "blog.apps.BlogConfig",
-
     # Django REST Framework
-    "rest_framework", 
-
-    # Django filters 
-    'django_filters', 
-
+    "rest_framework",
+    # Django filters
+    "django_filters",
     # Django Token Authentication
-    'rest_framework.authtoken',
-
+    "rest_framework.authtoken",
     # Django JWT
-     'rest_framework_simplejwt',
-
-    'drf_yasg',
-
+    "rest_framework_simplejwt",
+    "drf_yasg",
     # send email
-    'mail_templated',
+    "mail_templated",
 ]
 
 MIDDLEWARE = [
@@ -76,7 +71,7 @@ ROOT_URLCONF = "core.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / 'templates'],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -136,16 +131,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'static'
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "static"
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 
-STATICFILES_DIRS = [
-    BASE_DIR / 'staticfile'
-]
+STATICFILES_DIRS = [BASE_DIR / "staticfile"]
 
 
 # Default primary key field type
@@ -153,7 +146,7 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# user manager config 
+# user manager config
 AUTH_USER_MODEL = "accounts.User"
 
 # rest framework settings
@@ -161,22 +154,21 @@ REST_FRAMEWORK = {
     # "DEFAULT_PERMISSION_CLASSES": [
     #     "rest_framework.permissions.IsAuthenticated",
     # ]
-
-    'DEFAULT_AUTHENTICATION_CLASSES': [
+    "DEFAULT_AUTHENTICATION_CLASSES": [
         # 'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ]
 }
 
 # email configouration
 # EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_USE_TLS = False
-EMAIL_HOST = 'smtp4dev'
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST = "smtp4dev"
+EMAIL_HOST_USER = ""
+EMAIL_HOST_PASSWORD = ""
 EMAIL_PORT = 25
 
 SIMPLE_JWT = {

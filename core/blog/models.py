@@ -7,17 +7,19 @@ from django.urls import reverse
 # Getting user model objects
 User = get_user_model()
 
+
 class Post(models.Model):
-    '''
+    """
     This is a class to define posts for blog app
-    '''
+    """
+
     author = models.ForeignKey("accounts.Profile", on_delete=models.SET_NULL, null=True)
-    image = models.ImageField(null=True,blank=True)
+    image = models.ImageField(null=True, blank=True)
     title = models.CharField(max_length=255)
     content = models.TextField()
-    category = models.ForeignKey('Category',on_delete=models.SET_NULL, null=True)
+    category = models.ForeignKey("Category", on_delete=models.SET_NULL, null=True)
     status = models.BooleanField(default=False)
-    
+
     created_date = models.DateTimeField(auto_now_add=True)
     published_date = models.DateTimeField(null=True)
     update_date = models.DateTimeField(auto_now=True)
@@ -30,8 +32,8 @@ class Post(models.Model):
 
     def get_absolute_api_url(self):
         return reverse("blog:api_v1:post-detail", kwargs={"pk": self.pk})
-    
-    
+
+
 class Category(models.Model):
     name = models.CharField(max_length=255)
 

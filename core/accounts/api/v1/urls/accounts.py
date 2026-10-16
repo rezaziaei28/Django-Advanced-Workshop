@@ -1,40 +1,38 @@
 from django.urls import path
-from ..views import * 
+from ..views import *
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
-    TokenRefreshView,  
+    TokenRefreshView,
     TokenVerifyView,
 )
-
 
 urlpatterns = [
     # registration
     path("register/", RegisterAPIView.as_view(), name="register"),
-
     # test email
-    path('test-email/', TestEmailSend.as_view(), name='rest-email'),
-
+    path("test-email/", TestEmailSend.as_view(), name="rest-email"),
     # activation
-    path('activation/sendconfirm/<str:token>', ActivationApiViews.as_view(), name='activation'),
-
+    path(
+        "activation/sendconfirm/<str:token>",
+        ActivationApiViews.as_view(),
+        name="activation",
+    ),
     # resand activation
-    path('activation/resand/', ActivationResandApiViews.as_view(), name='activation-resand'),
-
+    path(
+        "activation/resand/",
+        ActivationResandApiViews.as_view(),
+        name="activation-resand",
+    ),
     # change password
-    path('password-change/', ChangePasswordApiView.as_view(), name='change-password'),
-
+    path("password-change/", ChangePasswordApiView.as_view(), name="change-password"),
     # reset password
-
     # login tocken
-    path('token/login/', CustomObtainAuthToken.as_view(), name='token-login'),
-
+    path("token/login/", CustomObtainAuthToken.as_view(), name="token-login"),
     # logout
-    path('token/logout/', CustomDiscardAuthToken.as_view(), name='token-logout'),
-    
-    # login JWT  
+    path("token/logout/", CustomDiscardAuthToken.as_view(), name="token-logout"),
+    # login JWT
     # path('jwt/create/', TokenObtainPairView.as_view(), name='jwt-create'),
-    path('jwt/refresh/', TokenRefreshView.as_view(), name='jwt-refresh'),
-    path('jwt/verify/', TokenVerifyView.as_view(), name='jwt-verify'),
-
-    path('jwt/create/', CustomTokenObtainPairView.as_view(), name='jwt-create'),
+    path("jwt/refresh/", TokenRefreshView.as_view(), name="jwt-refresh"),
+    path("jwt/verify/", TokenVerifyView.as_view(), name="jwt-verify"),
+    path("jwt/create/", CustomTokenObtainPairView.as_view(), name="jwt-create"),
 ]
