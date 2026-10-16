@@ -1,6 +1,7 @@
 from django.test import TestCase
 from datetime import datetime
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 
 from ..models import Post, Category
 from accounts.models import User, Profile
@@ -30,3 +31,9 @@ class TestPostModel(TestCase):
             self.assertEqual(post.content, 'description')
             self.assertEqual(post.author, profile)
             self.assertTrue(post.status)
+
+      def test_create_post_with_no_data(self):
+            """Test if a post with no data is invalid"""
+            post = Post()
+            with self.assertRaises(ValidationError):
+                  post.full_clean()
