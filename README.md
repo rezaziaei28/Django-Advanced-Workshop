@@ -135,6 +135,14 @@ I added Docker and Docker Compose to the project.
 My goal was to understand how a Django application can run inside containers and how the development environment can be configured separately from the application code.
 
 ---
+
+### Testing
+
+I started learning how to write tests for my project. I learned the difference between SimpleTestCase and TestCase and when to use each one. I wrote tests for my forms, models, and views to make sure everything works as expected and to catch bugs before they reach production.
+
+I also learned how to use the Django test Client and APIClient to test my views and API endpoints with different users and permissions.
+---
+
 ## Django REST Framework
 
 I started learning DRF step by step and implemented many concepts in this project.
@@ -177,7 +185,7 @@ I added Swagger and ReDoc with drf-yasg and a schema_view with openapi info and 
 
 ### API Testing
 
-I used Postman to test all the API endpoints and I tested register login logout token and JWT endpoints and I tested CRUD operations on posts and categories and I tested filtering searching ordering and pagination and I tested permissions with different users to check IsOwnerOrReadOnly.
+I used Postman to test all the API endpoints and I tested register login logout token and JWT endpoints and I tested CRUD operations on posts and categories and I tested filtering searching ordering and pagination and I tested permissions with different users to check IsOwnerOrReadOnly. 
 
 ---
 
@@ -190,14 +198,34 @@ This repository is still actively growing as I continue learning Django.
 I do not consider myself finished with the topics in this project, and I will continue improving and expanding it.
 
 ---
+## Challenges I Faced
 
+### Profile bug in Post API tests
+
+When I was writing tests for the Post API to check if a logged-in user can create a post, I got a MultipleObjectsReturned error. The error said that my query returned more than one Profile and it happened inside my PostSerializer when it was trying to find the author.
+
+After looking at my code I understood the problem. I had a signal in my Profile model that automatically creates a profile for every new user. But in my test setUp I was also creating a profile manually for the user. So the user ended up with two profiles and Profile.objects.get() did not know which one to pick.
+
+To fix this in the test I stopped creating the profile manually and used Profile.objects.get(user=self.user) to get the profile that the signal already created. This fixed the error and now all 13 tests pass and I can check that logged-in users get 201 when creating a post and anonymous users get 403.
+
+---
+
+## Notes and Things I Learned
+
+### Testing in Django
+
+I started learning testing in Django and I wrote tests for the blog app. I used SimpleTestCase for tests that do not need a database (like checking URLs) and TestCase for tests that need a database (like models and views). 
+
+I also learned how to use assertions like assertEqual, assertTrue, assertContains, and assertRaises. If you want to see the full list of assertions I learned and how I use them, you can look inside the test files in the `blog/test/` directory in this repository.
+
+
+---
 ## What I Plan to Learn Next
 
 Some of the topics I plan to continue working on are:
 
 - Django Forms and ModelForms
 - User permissions and groups
-- Django testing
 - More DRF concepts like Throttling and Versioning
 - JWT customization for returning user info
 - API documentation improvements
@@ -219,6 +247,9 @@ Some of the topics I plan to continue working on are:
 - Git
 - GitHub
 - Postman
+- Black
+- Flake8
+- Django unittest (Testing)
 ---
 
 ## Running the Project
