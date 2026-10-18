@@ -218,17 +218,17 @@ I started learning testing in Django and I wrote tests for the blog app. I used 
 
 I also learned how to use assertions like assertEqual, assertTrue, assertContains, and assertRaises. If you want to see the full list of assertions I learned and how I use them, you can look inside the test files in the `blog/test/` directory in this repository.
 
+If you want to see the challenges I faced and the details of what I learned, you can look at the comments and docstrings I wrote inside the `blog/test/`, `accounts/api/v1/`, and `blog/api/v1/` directories in this repository.
 
 ---
 ## What I Plan to Learn Next
 
 Some of the topics I plan to continue working on are:
 
-- Django Forms and ModelForms
 - User permissions and groups
 - More DRF concepts like Throttling and Versioning
-- JWT customization for returning user info
 - API documentation improvements
+- Deploying the project to a real server
 
 ---
 
