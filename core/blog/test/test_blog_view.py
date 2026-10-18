@@ -35,7 +35,7 @@ class TestBlogViews(TestCase):
             url = reverse('blog:index')
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
-            self.assertContains(response, "index")
+            self.assertContains(response, "blog posts") 
             self.assertTemplateUsed(response, template_name = "blog/post_list.html")
 
       def test_blog_post_detail_is_logged_in_response(self):
