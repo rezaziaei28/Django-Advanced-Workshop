@@ -1,3 +1,13 @@
+## Challenges I Faced
+
+### Profile bug in Post API tests
+
+When I was writing tests for the Post API to check if a logged-in user can create a post, I got a MultipleObjectsReturned error. The error said that my query returned more than one Profile and it happened inside my PostSerializer when it was trying to find the author.
+
+After looking at my code I understood the problem. I had a signal in my Profile model that automatically creates a profile for every new user. But in my test setUp I was also creating a profile manually for the user. So the user ended up with two profiles and Profile.objects.get() did not know which one to pick.
+
+To fix this in the test I stopped creating the profile manually and used Profile.objects.get(user=self.user) to get the profile that the signal already created. This fixed the error and now all 13 tests pass and I can check that logged-in users get 201 when creating a post and anonymous users get 403.
+
 ## Notes and Things I Learned
 
 ### Testing in Django
