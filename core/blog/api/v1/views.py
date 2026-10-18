@@ -189,32 +189,36 @@ class PostViewSet(viewsets.ViewSet):
 
 
 class PostModelViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.filter(status=True)
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
-    serializer_class = PostSerializers
+      '''API viewset for Post model with filtering and pagination'''
+      
+      queryset = Post.objects.filter(status=True)
+      permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+      serializer_class = PostSerializers
+      ordering = ["-created_date"] 
 
-    # filter backend
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = {
-        "category": ["exact", "in"],
-        "author": ["exact", "in"],
-        "status": ["exact", "in"],
-    }
-    # we can use regexes for it for example
-    # serch_fields = ['=title']  we must serch precise title for show post
-    # else does not show post
-    search_fields = ["title", "content"]
-    ordering_fields = ["published_date"]
+      # filter backend
+      filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+      filterset_fields = {
+            "category": ["exact", "in"],
+            "author": ["exact", "in"],
+            "status": ["exact", "in"],
+      }
+      # we can use regexes for it for example
+      # serch_fields = ['=title']  we must serch precise title for show post
+      # else does not show post
+      search_fields = ["title", "content"]
+      ordering_fields = ["published_date"]
 
-    # this for pagination post
-    pagination_class = DefultPagination
+      # this for pagination post
+      pagination_class = DefultPagination
 
-    @action(methods=["get"], detail=False)
-    def get_is_ok(self, request):
-        return Response({"detail": "Is ok"})
+      @action(methods=["get"], detail=False)
+      def get_is_ok(self, request):
+            return Response({"detail": "Is ok"})
 
 
 class CategoryModelViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    serializer_class = CategorySerializers
-    queryset = Category.objects.all()
+      '''API viewset for Category model'''
+      permission_classes = [IsAuthenticatedOrReadOnly]
+      serializer_class = CategorySerializers
+      queryset = Category.objects.all()
