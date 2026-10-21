@@ -8,6 +8,7 @@ urlpatterns = [
     path("", IndexView.as_view(),name='index'),
     #     path("go_to_jadi_dot_net/<int:pk>", RedirectToJadiDotNet.as_view(), name="go_to_jadi_dot_net"),
     path("post/", PostListView.as_view(), name="post-list"),
+    path("post/api/", PostListApiView.as_view(), name="post-list-api"),
     path("post/<int:pk>/", PostDetailView.as_view(), name="post-detail"),
     path("post/create/", PostCreateView.as_view(), name="post-create"),
     path("post/<int:pk>/edit/", PostEditView.as_view(), name="post-edit"),
