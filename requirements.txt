@@ -24,3 +24,4 @@ pyjwt[crypto]==2.14.0
 # refactoring and tests
 black
 flake8
+Faker
