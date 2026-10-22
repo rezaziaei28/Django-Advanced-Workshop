@@ -54,11 +54,14 @@ INSTALLED_APPS = [
     "drf_yasg",
     # send email
     "mail_templated",
+    # control for using API
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -174,3 +177,14 @@ EMAIL_PORT = 25
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
 }
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://localhost:8080",
+    "http://127.0.0.1:5500",
+]
+
+# the botton code is about access all to API 
+# CORS_ALLOW_ALL_ORIGINS = True

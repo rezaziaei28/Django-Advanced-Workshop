@@ -13,7 +13,7 @@ djangorestframework-simplejwt
 markdown      
 django-filter  
 drf-yasg[validation]
-
+django-cors-headers
 
 # deployment module
 
