@@ -208,6 +208,14 @@ After looking at my code I understood the problem. I had a signal in my Profile 
 
 To fix this in the test I stopped creating the profile manually and used Profile.objects.get(user=self.user) to get the profile that the signal already created. This fixed the error and now all 13 tests pass and I can check that logged-in users get 201 when creating a post and anonymous users get 403.
 
+### Locust load test failed with 400 and 403 errors
+
+When I started learning Locust to do load testing, I got two different errors. First I was getting a 403 Forbidden error because the API needs authentication and Locust was sending requests as an anonymous user. Then I got a 400 Bad Request error because Docker was sending the request with the host `backend:8000` which was not in my ALLOWED_HOSTS, and also the double slashes in the URL were making the routes invalid.
+
+To fix the first problem, I wrote an on_start method in the locustfile to log in with JWT and add the Bearer token to the headers. To fix the second problem, I added the `ALLOWED_HOSTS` environment variable to the docker-compose file and removed the trailing slash from the host URL in the Locust command.
+
+After these fixes, the load test ran successfully with 0 failures and I could see the API performance under pressure.
+
 ---
 
 ## Notes and Things I Learned
