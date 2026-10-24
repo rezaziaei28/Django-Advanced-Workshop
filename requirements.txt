@@ -26,3 +26,7 @@ pyjwt[crypto]==2.14.0
 black
 flake8
 Faker
+
+# Backgrund proccess and cache
+celery
+redis

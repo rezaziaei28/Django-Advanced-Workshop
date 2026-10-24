@@ -188,3 +188,6 @@ CORS_ALLOWED_ORIGINS = [
 
 # the botton code is about access all to API 
 # CORS_ALLOW_ALL_ORIGINS = True
+
+# celery configs
+CELERY_BROKER_URL = 'redis://redis:6379/1'
