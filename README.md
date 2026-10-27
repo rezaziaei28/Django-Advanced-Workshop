@@ -136,6 +136,12 @@ My goal was to understand how a Django application can run inside containers and
 
 ---
 
+### Background Tasks & Caching
+
+I integrated Celery and Redis to handle background tasks like sending emails asynchronously. I configured a Redis broker and ran both services inside Docker to improve the application's performance and scalability.
+
+---
+
 ### Testing
 
 I started learning how to write tests for my project. I learned the difference between SimpleTestCase and TestCase and when to use each one. I wrote tests for my forms, models, and views to make sure everything works as expected and to catch bugs before they reach production.
@@ -216,6 +222,12 @@ To fix the first problem, I wrote an on_start method in the locustfile to log in
 
 After these fixes, the load test ran successfully with 0 failures and I could see the API performance under pressure.
 
+### Celery and Redis Setup Issues in Docker
+
+When I tried to set up Celery with Redis inside Docker, I faced a few issues. First, the Celery worker couldn't connect to Redis because I had configured it with `localhost` instead of the Docker service name (`redis`). Second, I got a `ModuleNotFoundError` because the `redis` Python package wasn't installed in the container. Finally, I had a typo in my `celery.py` file where I wrote `proj.settings` instead of `core.settings`.
+
+I fixed these by adding `CELERY_BROKER_URL = 'redis://redis:6379/1'` to settings, installing the `redis` package in `requirements.txt`, and correcting the project name in the Celery config.
+
 ---
 
 ## Notes and Things I Learned
@@ -258,6 +270,8 @@ Some of the topics I plan to continue working on are:
 - Black
 - Flake8
 - Django unittest (Testing)
+- Celery
+- Redis
 ---
 
 ## Running the Project
@@ -266,8 +280,8 @@ Some of the topics I plan to continue working on are:
 
 ```bash
 docker-compose up --build
-docker-compose exec web python manage.py migrate
-docker-compose exec web python manage.py createsuperuser
+docker-compose exec backend python manage.py migrate
+docker-compose exec backend python manage.py createsuperuser
 ```
 
 ### Then open 
