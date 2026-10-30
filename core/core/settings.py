@@ -191,3 +191,12 @@ CORS_ALLOWED_ORIGINS = [
 
 # celery configs
 CELERY_BROKER_URL = 'redis://redis:6379/1'
+
+# CELERY_BEAT_SCHEDULE = {
+#       'send-email':{
+#             'task':'accounts.tasks.send-email',
+#             'schedule':5,
+#             # 'schedule':timedelta(minutes=30),
+#             # 'schedule': crontab(hour=7, minute=30, day_of_week=1),   
+#       }
+# }
