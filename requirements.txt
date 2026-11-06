@@ -17,6 +17,7 @@ django-cors-headers
 locust
 
 # deployment module
+whitenoise
 
 # Email third party_modules
 django-mail-templated
