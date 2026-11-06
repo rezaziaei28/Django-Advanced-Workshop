@@ -136,9 +136,17 @@ My goal was to understand how a Django application can run inside containers and
 
 ---
 
+
+
 ### Background Tasks & Caching
 
 I integrated Celery and Redis to handle background tasks like sending emails asynchronously. I configured a Redis broker and ran both services inside Docker to improve the application's performance and scalability.
+
+---
+
+### Production Readiness & WhiteNoise
+
+I learned how to prepare the project for production by adding WhiteNoise. This middleware allows the Django app to serve its own static files efficiently in production, without needing a separate web server like Nginx. I also configured the docker-compose file to automatically run collectstatic when the container starts.
 
 ---
 
@@ -228,6 +236,9 @@ When I tried to set up Celery with Redis inside Docker, I faced a few issues. Fi
 
 I fixed these by adding `CELERY_BROKER_URL = 'redis://redis:6379/1'` to settings, installing the `redis` package in `requirements.txt`, and correcting the project name in the Celery config.
 
+### Static files not loading in production
+When I started preparing the project for production, I realized that Django's development server handles static files, but in a production environment, it doesn't. I added WhiteNoise and configured `STATICFILES_STORAGE` to fix this. I also had to make sure `collectstatic` runs every time the Docker container starts.
+
 ---
 
 ## Notes and Things I Learned
@@ -272,6 +283,7 @@ Some of the topics I plan to continue working on are:
 - Django unittest (Testing)
 - Celery
 - Redis
+- WhiteNoise
 ---
 
 ## Running the Project
