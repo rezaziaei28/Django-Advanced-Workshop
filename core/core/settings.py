@@ -165,7 +165,15 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ]
+    ],
+    "DEFAULT_THROTTLE_CLASSES": [    
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "30/day",   # Anonymous users can send 30 requests per day
+        "user": "1000/day", # Logged-in users can send 1000 requests per day
+    },
 }
 
 # email configouration
